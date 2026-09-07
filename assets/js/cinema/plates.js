@@ -14,7 +14,7 @@
     AD.data.scenes.forEach(function (s, i) {
       var data = window.AD_PLATE_DATA && window.AD_PLATE_DATA[s.id];
       var img = el('img', {
-        src: data || (base + s.id + '.jpg'), alt: '',
+        src: data || (base + s.id + '.jpg' + (window.AD_BUILD ? '?v=' + window.AD_BUILD : '')), alt: '',
         loading: i < 3 ? 'eager' : 'lazy', decoding: 'async'
       });
       var layer = el('div', { class: 'plate', 'data-scene': s.id, 'aria-hidden': 'true' }, [img]);
