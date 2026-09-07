@@ -193,3 +193,20 @@ with any prophecy, and does not present one eschatological framework as correct.
 1 Enoch appears throughout as a clearly marked comparative source: canonical in the
 Ethiopian Orthodox Tewahedo Church, non-canonical in Jewish, Catholic, Orthodox and
 Protestant traditions.
+
+
+---
+
+## Addendum — why the backdrops are pre-rendered
+
+The first build of this site rendered every environment live in a WebGL fragment shader.
+That was the wrong call, and it looked it. A realtime shader on a phone can afford roughly
+14–26 raymarch steps per pixel; the plates here use 110, with a six-step light march,
+multiple scattering, god rays and bloom as separate full-frame passes. Those passes are
+simply not affordable at 60 fps, and without them clouds smear and skies wash out.
+
+So the pipeline inverted: render offline at high quality, ship the results as plates, and
+spend the realtime budget on **motion** instead — a scroll-driven push-in, cross-fades,
+drifting haze, and light shafts that breathe. That is the same architecture the reference
+site uses, with two differences: eleven unique plates instead of four recycled ones, and
+the stills actually move.

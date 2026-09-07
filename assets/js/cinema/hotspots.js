@@ -12,6 +12,25 @@
   function dot(a, b) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; }
 
   AD.hotspots = {
+    /* plate mode: az/el map to a position in the frame, drifting with the push-in */
+    place2: function (layer, w, h, local, vis) {
+      if (!layer || !layer._items) return;
+      var items = layer._items;
+      var push = 1.055 + local * 0.075;
+      for (var i = 0; i < items.length; i++) {
+        var d = items[i].def;
+        var bx = 0.5 + d.az / 78, by = 0.52 - d.el / 46;
+        var x = w * (0.5 + (bx - 0.5) * push) + (local - 0.5) * w * 0.016;
+        var y = h * (0.5 + (by - 0.5) * push) - (local - 0.5) * h * 0.024;
+        var edge = Math.min(x / w, 1 - x / w, y / h, 1 - y / h);
+        var a = vis * Math.min(Math.max(edge * 7, 0), 1);
+        var node = items[i].node;
+        node.style.transform = 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px)';
+        node.style.opacity = a.toFixed(3);
+        node.style.pointerEvents = a > 0.35 ? 'auto' : 'none';
+      }
+    },
+
     build: function (scene) {
       if (!scene.hotspots || !scene.hotspots.length) return null;
       var layer = el('div', { class: 'hotspots', 'aria-label': 'Points in this scene' });

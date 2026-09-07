@@ -32,17 +32,17 @@
   /* root is a semitone offset from A3 (-12). progression and motif are scale
      degrees; the motif reads as a melody rather than a random walk. */
   var VOICE = {
-    prologue:    { root: -19, mode: 'aeolian',    prog: [0, 3, 5, 4],  motif: [0, 4, 7, 4, 2, 0],        bpm: 34, sparse: 0.55, oct: 2 },
-    origins:     { root: -21, mode: 'ionian',     prog: [1, 4, 0, 3],  motif: [0, 2, 4, 7, 4, 2],        bpm: 40, sparse: 0.35, oct: 2 },
-    foundations: { root: -19, mode: 'dorian',     prog: [0, 6, 3, 4],  motif: [0, 3, 5, 3, 0, -3],       bpm: 32, sparse: 0.60, oct: 2 },
-    signs:       { root: -14, mode: 'mixolydian', prog: [0, 3, 5, 1],  motif: [4, 2, 0, 2, 4, 5],        bpm: 46, sparse: 0.30, oct: 2 },
-    tribulation: { root: -17, mode: 'phrygian',   prog: [0, 1, 0, 5],  motif: [0, 1, 3, 1, 0, -2],       bpm: 52, sparse: 0.25, oct: 1 },
-    adversaries: { root: -17, mode: 'phrygdom',   prog: [0, 4, 1, 0],  motif: [0, 1, 4, 3, 1, 0],        bpm: 30, sparse: 0.65, oct: 1 },
-    cosmos:      { root: -21, mode: 'wholetone',  prog: [0, 2, 4, 2],  motif: [0, 2, 4, 6, 4, 2],        bpm: 26, sparse: 0.70, oct: 3 },
-    parousia:    { root: -16, mode: 'lydian',     prog: [0, 4, 1, 5],  motif: [0, 2, 4, 6, 7, 9],        bpm: 44, sparse: 0.20, oct: 3 },
-    judgement:   { root: -12, mode: 'aeolian',    prog: [0, 5, 3, 6],  motif: [7, 4, 2, 0, 2, 4],        bpm: 36, sparse: 0.45, oct: 2 },
-    restoration: { root: -14, mode: 'ionian',     prog: [0, 3, 5, 4],  motif: [0, 2, 4, 7, 9, 7],        bpm: 48, sparse: 0.22, oct: 3 },
-    coda:        { root: -19, mode: 'aeolian',    prog: [0, 3, 5, 4],  motif: [7, 4, 0, 4, 2, 0],        bpm: 30, sparse: 0.60, oct: 2 }
+    prologue:    { root: -19, mode: 'aeolian',    prog: [0, 5, 3, 4],  motif: [0, 4, 7, 4],     bpm: 30, sparse: 0.72, oct: 2 },
+    origins:     { root: -21, mode: 'ionian',     prog: [1, 4, 0, 3],  motif: [0, 2, 4, 7],     bpm: 34, sparse: 0.58, oct: 2 },
+    foundations: { root: -19, mode: 'dorian',     prog: [0, 3, 6, 4],  motif: [0, 3, 5, 3],     bpm: 28, sparse: 0.76, oct: 2 },
+    signs:       { root: -14, mode: 'mixolydian', prog: [0, 3, 5, 1],  motif: [4, 2, 0, 2],     bpm: 36, sparse: 0.62, oct: 2 },
+    tribulation: { root: -17, mode: 'aeolian',    prog: [0, 5, 3, 4],  motif: [0, 3, 2, 0],     bpm: 32, sparse: 0.70, oct: 1 },
+    adversaries: { root: -17, mode: 'aeolian',    prog: [0, 4, 5, 3],  motif: [0, 2, 4, 2],     bpm: 26, sparse: 0.80, oct: 1 },
+    cosmos:      { root: -21, mode: 'lydian',     prog: [0, 4, 2, 5],  motif: [0, 4, 6, 4],     bpm: 24, sparse: 0.82, oct: 3 },
+    parousia:    { root: -16, mode: 'lydian',     prog: [0, 4, 1, 5],  motif: [0, 2, 4, 6],     bpm: 38, sparse: 0.50, oct: 3 },
+    judgement:   { root: -12, mode: 'aeolian',    prog: [0, 5, 3, 6],  motif: [7, 4, 2, 0],     bpm: 30, sparse: 0.68, oct: 2 },
+    restoration: { root: -14, mode: 'ionian',     prog: [0, 3, 5, 4],  motif: [0, 2, 4, 7],     bpm: 40, sparse: 0.52, oct: 3 },
+    coda:        { root: -19, mode: 'aeolian',    prog: [0, 5, 3, 4],  motif: [7, 4, 0, 4],     bpm: 26, sparse: 0.76, oct: 2 }
   };
 
   function degree(v, d) {
@@ -62,12 +62,12 @@
     master.connect(ctx.destination);
 
     /* a small feedback-delay reverb: three prime-ish delays through a lowpass */
-    wet = ctx.createGain(); wet.gain.value = 0.34;
+    wet = ctx.createGain(); wet.gain.value = 0.56;
     var damp = ctx.createBiquadFilter();
-    damp.type = 'lowpass'; damp.frequency.value = 2200;
+    damp.type = 'lowpass'; damp.frequency.value = 1500;
     [0.137, 0.211, 0.313].forEach(function (d) {
       var dl = ctx.createDelay(1.0); dl.delayTime.value = d;
-      var fb = ctx.createGain(); fb.gain.value = 0.62;
+      var fb = ctx.createGain(); fb.gain.value = 0.70;
       wet.connect(dl); dl.connect(fb); fb.connect(damp); damp.connect(dl);
       dl.connect(master);
     });
@@ -77,10 +77,10 @@
     if (panner) { panner.connect(master); panner.connect(wet); }
 
     /* drone: two detuned oscillators plus a sub */
-    [[1, 'sine', 0.42], [2.003, 'sine', 0.16], [0.5, 'triangle', 0.20]].forEach(function (v) {
+    [[1, 'sine', 0.38], [2.002, 'sine', 0.10], [0.5, 'sine', 0.26]].forEach(function (v) {
       var o = ctx.createOscillator(), g = ctx.createGain(), f = ctx.createBiquadFilter();
       o.type = v[1]; o.frequency.value = 110 * v[0];
-      f.type = 'lowpass'; f.frequency.value = 900;
+      f.type = 'lowpass'; f.frequency.value = 620;
       g.gain.value = v[2];
       o.connect(f); f.connect(g); g.connect(master); g.connect(wet);
       o.start();
@@ -107,7 +107,7 @@
     for (var k = 0; k < len; k++) d[k] = (Math.random() * 2 - 1) * 0.4;
     var src = ctx.createBufferSource(); src.buffer = buf; src.loop = true;
     var lp = ctx.createBiquadFilter(); lp.type = 'bandpass'; lp.frequency.value = 520; lp.Q.value = 0.5;
-    var ng = ctx.createGain(); ng.gain.value = 0.035;
+    var ng = ctx.createGain(); ng.gain.value = 0.022;
     src.connect(lp); lp.connect(ng); ng.connect(master);
     src.start();
     AD.audio._noise = ng;
@@ -123,18 +123,18 @@
     o.type = 'sine'; o.frequency.value = freq;
     o2.type = 'sine'; o2.frequency.value = freq * 2.01;
     g.gain.setValueAtTime(0.0001, when);
-    g.gain.exponentialRampToValueAtTime(gain, when + 0.012);
-    g.gain.exponentialRampToValueAtTime(0.0001, when + 2.6);
+    g.gain.exponentialRampToValueAtTime(gain, when + 0.28);
+    g.gain.exponentialRampToValueAtTime(0.0001, when + 4.2);
     g2.gain.setValueAtTime(0.0001, when);
-    g2.gain.exponentialRampToValueAtTime(gain * 0.28, when + 0.008);
-    g2.gain.exponentialRampToValueAtTime(0.0001, when + 1.1);
+    g2.gain.exponentialRampToValueAtTime(gain * 0.16, when + 0.22);
+    g2.gain.exponentialRampToValueAtTime(0.0001, when + 2.0);
     o.connect(g); o2.connect(g2);
     var dest = panner || master;
     if (panner) panner.pan.setTargetAtTime(panPos, when, 0.3);
     g.connect(dest); g2.connect(dest);
     if (!panner) { g.connect(wet); g2.connect(wet); }
     o.start(when); o2.start(when);
-    o.stop(when + 2.8); o2.stop(when + 1.4);
+    o.stop(when + 4.4); o2.stop(when + 2.2);
   }
 
   /* --- scheduler -------------------------------------------------------- */
@@ -156,9 +156,9 @@
       if (Math.random() > v.sparse) {
         var d = v.motif[step % v.motif.length] + v.prog[chordIdx];
         var f = hz(degree(v, d) + v.oct * 12);
-        pluck(f, when, 0.055 + Math.random() * 0.035, (Math.random() - 0.5) * 0.7);
-        if (Math.random() > 0.72) {
-          pluck(hz(degree(v, d + 2) + v.oct * 12), when + beat * 0.5, 0.028, (Math.random() - 0.5) * 0.9);
+        pluck(f, when, 0.026 + Math.random() * 0.016, (Math.random() - 0.5) * 0.6);
+        if (Math.random() > 0.85) {
+          pluck(hz(degree(v, d + 2) + v.oct * 12), when + beat * 0.75, 0.014, (Math.random() - 0.5) * 0.8);
         }
       }
 
@@ -174,7 +174,7 @@
     for (var i = 0; i < pad.length; i++) {
       var f = hz(degree(v, rootDeg + degs[i]) + 12);
       pad[i].osc.frequency.setTargetAtTime(f, when, 0.9);
-      pad[i].gain.gain.setTargetAtTime(0.030 - i * 0.005, when, 1.2);
+      pad[i].gain.gain.setTargetAtTime(0.040 - i * 0.006, when, 2.4);
     }
     for (var k = 0; k < drone.length; k++) {
       drone[k].osc.frequency.setTargetAtTime(hz(degree(v, rootDeg) - 12) * drone[k].mult, when, 1.6);
@@ -192,7 +192,7 @@
       var t = ctx.currentTime;
       master.gain.cancelScheduledValues(t);
       master.gain.setValueAtTime(master.gain.value, t);
-      master.gain.linearRampToValueAtTime(on ? 0.20 : 0, t + (on ? 2.2 : 0.9));
+      master.gain.linearRampToValueAtTime(on ? 0.115 : 0, t + (on ? 3.0 : 1.1));
       if (on) {
         nextNote = ctx.currentTime + 0.25;
         step = 0; chordIdx = -1;
@@ -224,8 +224,8 @@
       if (!started || !on) return;
       var v = VOICE[scene] || VOICE.prologue;
       var t = ctx.currentTime + 0.01;
-      pluck(hz(degree(v, up ? 4 : 2) + 24), t, 0.05, 0);
-      pluck(hz(degree(v, up ? 7 : 4) + 24), t + 0.09, 0.032, 0.2);
+      pluck(hz(degree(v, up ? 4 : 2) + 24), t, 0.026, 0);
+      pluck(hz(degree(v, up ? 7 : 4) + 24), t + 0.14, 0.016, 0.2);
     },
 
     /* an accessible description of what is playing */
@@ -233,7 +233,7 @@
       var v = VOICE[scene] || VOICE.prologue;
       if (!on) return 'Ambient sound is off.';
       return 'Ambient sound: a low drone and a slow ' + v.mode + ' chord progression, ' +
-        'with a sparse bell motif, at about ' + v.bpm + ' beats per minute. No speech.';
+        'with an occasional soft bell, at about ' + v.bpm + ' beats per minute. No speech.';
     }
   };
 })(window.AD);

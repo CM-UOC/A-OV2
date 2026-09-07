@@ -32,9 +32,11 @@ assets/js/
   core/      util, store (filters/search/theme), hash router
   data/      taxonomy, 101 events across 9 stages, 1 Enoch, 11 cinematic scenes,
              frameworks, sequences, canon survey, passage map, glossary, sources
-  cinema/    atmosphere (WebGL raymarcher: sky, volumetric cloud, terrain,
-             water, grade), foreground (particles), glyphs, hotspots,
-             audio (generative Web Audio), panel (reading drawer), journey
+  cinema/    plates (backdrop compositor), atmos-overlay (light and haze),
+             glyphs, hotspots, audio (generative Web Audio),
+             panel (reading drawer), journey (scroll engine)
+plates/      the rendered backdrops: .png masters, .jpg for the web
+build/plates.sh            converts the PNG masters to web JPEGs
   components/ primitives, event card, filter bar, passage map, search overlay
   views/     one module per reading panel
 build/bundle.py            single-file bundler for publishing
@@ -42,12 +44,17 @@ build/bundle.py            single-file bundler for publishing
 
 ## How the experience is built
 
-Eleven scenes scroll past a rendered environment. No image, video, or media file is
-loaded. A WebGL fragment shader raymarches the whole place — analytic Rayleigh/Mie sky,
-volumetric clouds with a light march, a ground plane with aerial perspective, ridge
-silhouettes, an animated water surface with sun glitter, volumetric shafts, and a filmic
-grade. A real 3-D camera is moved by scroll, so parallax is geometric rather than faked.
-Every parameter interpolates between scenes, so nothing cuts.
+Eleven scenes scroll past a rendered backdrop. The backdrops are **rendered offline**, in
+Node, by a path tracer in `scratch/` (kept out of the shipped site): analytic Rayleigh/Mie
+sky, volumetric clouds raymarched at 110 steps with a six-step light march and a
+multiple-scattering approximation, an animated water surface with a sun-glitter path,
+god rays, bloom and a film grade. Rendering offline rather than in realtime buys roughly
+five times the samples per pixel, which is the whole difference between a smeared shader
+and a plate that reads as a photograph.
+
+In the browser those plates are composited: a slow scroll-driven push-in and drift, a
+cross-fade into the next scene, and a canvas layer of drifting haze and breathing light
+shafts over the top, so the stills move like footage. Nothing cuts.
 
 Sound is generative: a drone, a chord progression and a bell motif, each scene with its
 own root, mode, progression and tempo. It stays silent until switched on and publishes an

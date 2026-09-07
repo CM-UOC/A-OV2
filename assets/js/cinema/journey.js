@@ -6,7 +6,7 @@
 
   var scenes = D.scenes;
   var nodes = [], caps = [], spots = [], metrics = [];
-  var sky = null, fg = null, root = null;
+  var plates = null, over = null, fg = null, root = null;
   var last = 0, raf = null, reduced = false, paused = false;
   var quality, scale = 1, frameAcc = 0, frameN = 0, lastTune = 0;
 
@@ -20,11 +20,9 @@
 
   function pickQuality() {
     var coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
-    var dpr = window.devicePixelRatio || 1;
     var small = window.innerWidth < 820;
-    if (coarse || small) return { steps: 14, lightSteps: 3, grain: 0.020, scale: 0.62 };
-    if (dpr > 1.5) return { steps: 22, lightSteps: 4, grain: 0.016, scale: 0.72 };
-    return { steps: 26, lightSteps: 5, grain: 0.016, scale: 0.85 };
+    if (coarse || small) return { rays: 0.55, haze: 0.55, particles: 0.5 };
+    return { rays: 1, haze: 1, particles: 1 };
   }
 
   function sceneNode(scene, i) {
@@ -115,18 +113,23 @@
     var j = Math.min(i + 1, scenes.length - 1);
     var t = smooth(0.58, 0.99, frac);
 
-    var st = AD.atmos.state(scenes[i], scenes[j], t, frac, quality);
-    if (sky) sky.draw(st, now);
+    var A = scenes[i], B = scenes[j];
+    if (plates) plates.set(A.id, B.id, t, frac);
 
-    var accentRGB = rgbStr(st.accent);
+    var accentRGB = mixAccent(A, B, t);
     root.style.setProperty('--scene-accent', 'rgb(' + accentRGB + ')');
 
-    if (fg) {
-      fg.tune(scenes[i].particles, scenes[j].particles, t);
-      fg.draw({
-        sceneA: scenes[i].id, sceneB: scenes[j].id, t: t,
-        parallax: (frac - 0.5) * 2, time: now, dt: dt,
-        accentRGB: accentRGB, fogRGB: accentRGB, silhouette: '6,8,14'
+    if (over) {
+      var sunElev = lerp(A.sun.elev, B.sun.elev, t);
+      var sunAz = lerp(A.sun.azim, B.sun.azim, t);
+      var vh2 = window.innerHeight, vw2 = window.innerWidth;
+      over.draw({
+        time: now, dt: Math.min(dt, 0.05), accent: accentRGB,
+        sunX: vw2 * (0.5 + sunAz / 90),
+        sunY: vh2 * (0.62 - sunElev / 120),
+        rays: quality.rays * (1 - lerp(A.sun.eclipse, B.sun.eclipse, t) * 0.6) * (sunElev > -8 ? 1 : 0.25),
+        haze: quality.haze * (0.5 + 0.5 * lerp(A.clouds.coverage, B.clouds.coverage, t)),
+        parallax: (frac - 0.5) * 2
       });
     }
 
@@ -138,17 +141,22 @@
       caps[s].style.setProperty('--in', vis.toFixed(3));
       caps[s].style.pointerEvents = vis > 0.2 ? 'auto' : 'none';
       if (f > 0.02 && f < 0.99) nodes[s].classList.add('is-near');
-      if (spots[s]) AD.hotspots.place(spots[s], scenes[s], st, w, vh, smooth(0.18, 0.42, f) * (1 - smooth(0.66, 0.92, f)));
+      if (spots[s]) AD.hotspots.place2(spots[s], w, vh, f, smooth(0.18, 0.42, f) * (1 - smooth(0.66, 0.92, f)));
     }
 
     AD.hud.progress(i, frac, (i + frac) / (scenes.length - 1));
-    AD.audio.setScene(scenes[i].id, Math.min(Math.max((st.sunElev + 10) / 60, 0), 1), st.camFwd[0] * 0.5);
+    AD.audio.setScene(A.id, Math.min(Math.max((lerp(A.sun.elev, B.sun.elev, t) + 10) / 60, 0), 1), (frac - 0.5) * 0.6);
   }
 
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function mixAccent(a, b, t) {
+    var A = a.grade._tint, B = b.grade._tint;
+    return Math.round(lerp(A[0], B[0], t) * 255) + ',' +
+           Math.round(lerp(A[1], B[1], t) * 255) + ',' +
+           Math.round(lerp(A[2], B[2], t) * 255);
+  }
   function drawStatic() {
-    if (!sky) return;
-    sky.resize(quality.scale);
-    sky.draw(AD.atmos.state(scenes[1], scenes[1], 0, 0.5, quality), 0);
+    if (plates) plates.set(scenes[1].id, scenes[1].id, 0, 0.4);
   }
 
   AD.journey = {
@@ -163,19 +171,13 @@
       for (var i = 0; i < wrap.children.length; i++) nodes.push(wrap.children[i]);
       mountPoint.appendChild(wrap);
 
-      sky = AD.atmos.create(document.getElementById('sky'));
-      fg = AD.foreground.create(document.getElementById('fg'));
-      if (sky && sky.ok) {
-        sky.resize(scale);
-        var fb = document.getElementById('skyFallback');
-        if (fb) fb.style.display = 'none';
-      }
+      plates = AD.plates.create(document.getElementById('plates'), (window.AD_PLATE_BASE || 'plates/'));
+      over = AD.overlay.create(document.getElementById('fg'));
 
       measure();
       window.addEventListener('resize', AD.util.debounce(function () {
         measure();
-        if (sky) sky.resize(scale);
-        if (fg) fg.resize();
+        if (over) over.resize();
         if (reduced) drawStatic();
       }, 180));
 

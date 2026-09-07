@@ -420,3 +420,19 @@ body { background: #05070E; }
 }
 .audio-note[hidden] { display: none; }
 @media (max-width: 900px) { .audio-note { bottom: 2.4rem; } }
+
+/* --- plate backdrops ---------------------------------------------------- */
+#plates { position: fixed; inset: 0; z-index: 0; overflow: hidden; background: #05070E; }
+.plate {
+  position: absolute; inset: 0; opacity: 0; visibility: hidden;
+  transition: opacity 0.18s linear;
+  will-change: opacity;
+}
+.plate img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; object-position: 50% 50%;
+  will-change: transform;
+  transform: scale(1.06);
+}
+.plate.is-failed { background: linear-gradient(180deg, #0a1020 0%, #24303f 55%, #6b4a2f 100%); }
+.plate.is-failed img { display: none; }
