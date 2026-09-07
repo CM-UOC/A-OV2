@@ -1,0 +1,166 @@
+/* ============================================================
+   Design tokens — "The Appointed Time"
+   Palette derived from pigments used in ancient and medieval
+   manuscript production. Neutrals are biased toward indigo.
+   Light palette lives on bare :root; dark redefines tokens only.
+   ============================================================ */
+
+:root {
+  color-scheme: light;
+
+  /* ground & surfaces — cool limestone, not warm cream */
+  --ground:      #E4E2DB;
+  --ground-deep: #D9D6CD;
+  --surface:     #EEECE6;
+  --surface-2:   #F6F4EF;
+  --surface-3:   #FBFAF7;
+  --line:        #C6C2B6;
+  --line-soft:   #D6D2C7;
+
+  /* ink */
+  --ink:      #16192A;
+  --ink-2:    #363A4E;
+  --muted:    #565A6E;
+  --muted-2:  #6E7285;
+
+  /* gold leaf — the single accent */
+  --accent:       #9C7420;
+  --accent-ink:   #7A5A14;
+  --accent-soft:  rgba(156, 116, 32, 0.13);
+  --accent-line:  rgba(156, 116, 32, 0.38);
+
+  /* semantic (certainty), kept distinct from the accent */
+  --cert-anchored:  #2A6F68;
+  --cert-sequenced: #4C5674;
+  --cert-contested: #9F4A36;
+  --cert-symbolic:  #75406F;
+
+  /* stage pigments: graphic value / text-safe value */
+  --st-origins:          #6B4A2F;  --st-origins-ink:      #5E3F26;
+  --st-foundations:      #4C5674;  --st-foundations-ink:  #434D69;
+  --st-signs:            #2A6F68;  --st-signs-ink:        #1F5F58;
+  --st-tribulation:      #9F4A36;  --st-tribulation-ink:  #8D4030;
+  --st-adversaries:      #75406F;  --st-adversaries-ink:  #6A3A64;
+  --st-cosmos:           #2E559B;  --st-cosmos-ink:       #2A4E8E;
+  --st-parousia:         #9C7420;  --st-parousia-ink:     #7A5A14;
+  --st-judgement:        #93375A;  --st-judgement-ink:    #85314F;
+  --st-restoration:      #4A7538;  --st-restoration-ink:  #416830;
+
+  --sel: rgba(156, 116, 32, 0.22);
+  --scrim: rgba(28, 26, 22, 0.5);
+  --shadow-sm: 0 1px 2px rgba(22, 25, 42, 0.06);
+  --shadow-md: 0 6px 24px -10px rgba(22, 25, 42, 0.28);
+  --shadow-lg: 0 24px 60px -24px rgba(22, 25, 42, 0.42);
+  --star-opacity: 0;
+
+  /* type */
+  --f-display: "Cardo", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --f-body: "Archivo", "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --t-xs: 0.75rem;
+  --t-sm: 0.8125rem;
+  --t-base: 0.9375rem;
+  --t-md: 1.0625rem;
+  --t-lg: 1.375rem;
+  --t-xl: 1.875rem;
+  --t-2xl: 2.5rem;
+  --t-3xl: 3.4rem;
+
+  /* space */
+  --sp-1: 0.25rem; --sp-2: 0.5rem;  --sp-3: 0.75rem; --sp-4: 1rem;
+  --sp-5: 1.5rem;  --sp-6: 2rem;    --sp-7: 3rem;    --sp-8: 4.5rem;
+
+  --radius: 3px;
+  --radius-lg: 5px;
+  --rail-w: 264px;
+  --measure: 68ch;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --ground:      #0D111E;
+    --ground-deep: #080B15;
+    --surface:     #141A2A;
+    --surface-2:   #1A2133;
+    --surface-3:   #212940;
+    --line:        #2C3549;
+    --line-soft:   #222A3C;
+
+    --ink:     #EAE8E2;
+    --ink-2:   #C6C9D5;
+    --muted:   #99A0B4;
+    --muted-2: #838BA1;
+
+    --accent:      #E0B75A;
+    --accent-ink:  #EDCB80;
+    --accent-soft: rgba(224, 183, 90, 0.14);
+    --accent-line: rgba(224, 183, 90, 0.36);
+
+    --cert-anchored:  #6EC0B4;
+    --cert-sequenced: #9BA6C9;
+    --cert-contested: #E0917A;
+    --cert-symbolic:  #C892C0;
+
+    --st-origins:      #C99A6C;  --st-origins-ink:      #C99A6C;
+    --st-foundations:  #9BA6C9;  --st-foundations-ink:  #9BA6C9;
+    --st-signs:        #6EC0B4;  --st-signs-ink:        #6EC0B4;
+    --st-tribulation:  #E0917A;  --st-tribulation-ink:  #E0917A;
+    --st-adversaries:  #C892C0;  --st-adversaries-ink:  #C892C0;
+    --st-cosmos:       #8FB0E8;  --st-cosmos-ink:       #8FB0E8;
+    --st-parousia:     #E5BE66;  --st-parousia-ink:     #E5BE66;
+    --st-judgement:    #E489A8;  --st-judgement-ink:    #E489A8;
+    --st-restoration:  #98C97A;  --st-restoration-ink:  #98C97A;
+
+    --sel: rgba(224, 183, 90, 0.26);
+  --scrim: rgba(4, 6, 12, 0.62);
+    --scrim: rgba(4, 6, 12, 0.62);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 6px 24px -10px rgba(0, 0, 0, 0.66);
+    --shadow-lg: 0 24px 60px -24px rgba(0, 0, 0, 0.8);
+    --star-opacity: 1;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ground:      #0D111E;
+  --ground-deep: #080B15;
+  --surface:     #141A2A;
+  --surface-2:   #1A2133;
+  --surface-3:   #212940;
+  --line:        #2C3549;
+  --line-soft:   #222A3C;
+
+  --ink:     #EAE8E2;
+  --ink-2:   #C6C9D5;
+  --muted:   #99A0B4;
+  --muted-2: #838BA1;
+
+  --accent:      #E0B75A;
+  --accent-ink:  #EDCB80;
+  --accent-soft: rgba(224, 183, 90, 0.14);
+  --accent-line: rgba(224, 183, 90, 0.36);
+
+  --cert-anchored:  #6EC0B4;
+  --cert-sequenced: #9BA6C9;
+  --cert-contested: #E0917A;
+  --cert-symbolic:  #C892C0;
+
+  --st-origins:      #C99A6C;  --st-origins-ink:      #C99A6C;
+  --st-foundations:  #9BA6C9;  --st-foundations-ink:  #9BA6C9;
+  --st-signs:        #6EC0B4;  --st-signs-ink:        #6EC0B4;
+  --st-tribulation:  #E0917A;  --st-tribulation-ink:  #E0917A;
+  --st-adversaries:  #C892C0;  --st-adversaries-ink:  #C892C0;
+  --st-cosmos:       #8FB0E8;  --st-cosmos-ink:       #8FB0E8;
+  --st-parousia:     #E5BE66;  --st-parousia-ink:     #E5BE66;
+  --st-judgement:    #E489A8;  --st-judgement-ink:    #E489A8;
+  --st-restoration:  #98C97A;  --st-restoration-ink:  #98C97A;
+
+  --sel: rgba(224, 183, 90, 0.26);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 6px 24px -10px rgba(0, 0, 0, 0.66);
+  --shadow-lg: 0 24px 60px -24px rgba(0, 0, 0, 0.8);
+  --star-opacity: 1;
+}
