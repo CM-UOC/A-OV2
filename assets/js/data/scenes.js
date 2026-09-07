@@ -21,7 +21,8 @@
       clouds: { coverage: 0.26, density: 0.5, base: 900, top: 2600, speed: 0.6 },
       terrain: { type: 'none', height: 0, layers: 0 },
       water: { on: true, rough: 0.06, level: 0 },
-      grade: { lift: [0.010, 0.012, 0.022], gain: [0.92, 0.96, 1.10], sat: 0.85, tint: '#E9C877' },
+      grade: { lift: [0.010, 0.012, 0.022], gain: [0.92, 0.96, 1.10], sat: 0.85, tint: '#eee0cb' },
+      light: { x: 0.63, y: 0.53, rays: 0.28, haze: 0.35 },
       camera: { h: 90, yaw: 0, pitch: 1.5, fov: 52, dYaw: 5, dPitch: 2.5, dH: 18 },
       drone: 55, hotspots: []
     },
@@ -35,7 +36,8 @@
       clouds: { coverage: 0.40, density: 0.9, base: 780, top: 2500, speed: 1.0 },
       terrain: { type: 'none', height: 0, layers: 0 },
       water: { on: true, rough: 0.10, level: 0 },
-      grade: { lift: [0.020, 0.014, 0.010], gain: [1.10, 0.98, 0.86], sat: 1.05, tint: '#C99A6C' },
+      grade: { lift: [0.020, 0.014, 0.010], gain: [1.10, 0.98, 0.86], sat: 1.05, tint: '#ffcc4b' },
+      light: { x: 0.68, y: 0.46, rays: 1.00, haze: 0.55 },
       camera: { h: 62, yaw: -6, pitch: 0.5, fov: 55, dYaw: 9, dPitch: 3.0, dH: 26 },
       drone: 62,
       hotspots: [
@@ -54,7 +56,8 @@
       clouds: { coverage: 0.20, density: 0.6, base: 1100, top: 2900, speed: 0.5 },
       terrain: { type: 'dunes', height: 0.055, layers: 3, haze: 0.35 },
       water: { on: false, rough: 0, level: 0 },
-      grade: { lift: [0.012, 0.016, 0.030], gain: [0.80, 0.88, 1.16], sat: 0.80, tint: '#8E9AC0' },
+      grade: { lift: [0.012, 0.016, 0.030], gain: [0.80, 0.88, 1.16], sat: 0.80, tint: '#a6d0f6' },
+      light: { x: 0.80, y: 0.28, rays: 0.22, haze: 0.30 },
       camera: { h: 110, yaw: 4, pitch: -1.0, fov: 48, dYaw: -8, dPitch: 2.2, dH: 14 },
       drone: 49,
       hotspots: [
@@ -73,7 +76,8 @@
       clouds: { coverage: 0.48, density: 0.8, base: 950, top: 2700, speed: 1.3 },
       terrain: { type: 'hills', height: 0.075, layers: 4, haze: 0.55 },
       water: { on: false, rough: 0, level: 0 },
-      grade: { lift: [0.008, 0.020, 0.020], gain: [0.86, 1.06, 1.02], sat: 0.95, tint: '#6EC0B4' },
+      grade: { lift: [0.008, 0.020, 0.020], gain: [0.86, 1.06, 1.02], sat: 0.95, tint: '#eeeac2' },
+      light: { x: 0.63, y: 0.50, rays: 0.70, haze: 0.75 },
       camera: { h: 150, yaw: -10, pitch: 0.4, fov: 50, dYaw: 12, dPitch: -1.6, dH: -22 },
       drone: 73,
       hotspots: [
@@ -92,7 +96,8 @@
       clouds: { coverage: 0.66, density: 1.5, base: 620, top: 2200, speed: 2.1 },
       terrain: { type: 'ruins', height: 0.062, layers: 3, haze: 0.75 },
       water: { on: false, rough: 0, level: 0 },
-      grade: { lift: [0.030, 0.012, 0.008], gain: [1.18, 0.82, 0.66], sat: 1.0, tint: '#D9846C' },
+      grade: { lift: [0.030, 0.012, 0.008], gain: [1.18, 0.82, 0.66], sat: 1.0, tint: '#ff755a' },
+      light: { x: 0.70, y: 0.22, rays: 0.55, haze: 0.85 },
       camera: { h: 74, yaw: 8, pitch: -0.8, fov: 46, dYaw: -11, dPitch: 2.6, dH: 30 },
       drone: 58,
       hotspots: [
@@ -111,7 +116,8 @@
       clouds: { coverage: 0.56, density: 1.1, base: 560, top: 1900, speed: 0.8 },
       terrain: { type: 'colonnade', height: 0.085, layers: 3, haze: 0.65 },
       water: { on: false, rough: 0, level: 0 },
-      grade: { lift: [0.024, 0.010, 0.030], gain: [1.02, 0.78, 1.08], sat: 0.92, tint: '#C892C0' },
+      grade: { lift: [0.024, 0.010, 0.030], gain: [1.02, 0.78, 1.08], sat: 0.92, tint: '#fa91cc' },
+      light: { x: 0.62, y: 0.34, rays: 0.75, haze: 0.80 },
       camera: { h: 46, yaw: -4, pitch: 0.8, fov: 44, dYaw: 7, dPitch: -1.4, dH: -10 },
       drone: 46,
       hotspots: [
@@ -130,7 +136,8 @@
       clouds: { coverage: 0.30, density: 0.7, base: 1500, top: 3600, speed: 0.9 },
       terrain: { type: 'mountains', height: 0.115, layers: 4, haze: 0.45 },
       water: { on: false, rough: 0, level: 0 },
-      grade: { lift: [0.010, 0.014, 0.034], gain: [0.78, 0.90, 1.22], sat: 0.90, tint: '#8FB0E8' },
+      grade: { lift: [0.010, 0.014, 0.034], gain: [0.78, 0.90, 1.22], sat: 0.90, tint: '#aaccf6' },
+      light: { x: 0.74, y: 0.17, rays: 0.30, haze: 0.35 },
       camera: { h: 240, yaw: 6, pitch: 3.0, fov: 54, dYaw: -9, dPitch: -3.5, dH: 26 },
       drone: 41,
       hotspots: [
@@ -148,7 +155,8 @@
       clouds: { coverage: 0.60, density: 1.3, base: 900, top: 3000, speed: 1.1 },
       terrain: { type: 'cloudsea', height: 0.045, layers: 3, haze: 0.85 },
       water: { on: false, rough: 0, level: 0 },
-      grade: { lift: [0.030, 0.022, 0.008], gain: [1.20, 1.04, 0.72], sat: 1.02, tint: '#E5BE66' },
+      grade: { lift: [0.030, 0.022, 0.008], gain: [1.20, 1.04, 0.72], sat: 1.02, tint: '#ffca71' },
+      light: { x: 0.80, y: 0.20, rays: 1.00, haze: 0.50 },
       camera: { h: 300, yaw: -3, pitch: 2.0, fov: 58, dYaw: 5, dPitch: 1.4, dH: 44 },
       drone: 65,
       hotspots: [
@@ -167,7 +175,8 @@
       clouds: { coverage: 0.36, density: 0.8, base: 1200, top: 3100, speed: 0.7 },
       terrain: { type: 'none', height: 0, layers: 0 },
       water: { on: true, rough: 0.035, level: 0 },
-      grade: { lift: [0.026, 0.010, 0.018], gain: [1.10, 0.86, 0.96], sat: 0.88, tint: '#DC7C9E' },
+      grade: { lift: [0.026, 0.010, 0.018], gain: [1.10, 0.86, 0.96], sat: 0.88, tint: '#e9e5e6' },
+      light: { x: 0.42, y: 0.12, rays: 0.45, haze: 0.40 },
       camera: { h: 55, yaw: 2, pitch: 1.0, fov: 50, dYaw: -4, dPitch: -1.8, dH: 16 },
       drone: 52,
       hotspots: [
@@ -185,7 +194,8 @@
       clouds: { coverage: 0.44, density: 0.85, base: 980, top: 2700, speed: 0.8 },
       terrain: { type: 'city', height: 0.09, layers: 3, haze: 0.5 },
       water: { on: true, rough: 0.05, level: 0 },
-      grade: { lift: [0.014, 0.026, 0.012], gain: [1.06, 1.12, 0.80], sat: 1.0, tint: '#B6D488' },
+      grade: { lift: [0.014, 0.026, 0.012], gain: [1.06, 1.12, 0.80], sat: 1.0, tint: '#ffc552' },
+      light: { x: 0.10, y: 0.30, rays: 0.85, haze: 0.60 },
       camera: { h: 120, yaw: -8, pitch: -0.5, fov: 52, dYaw: 10, dPitch: 2.4, dH: 22 },
       drone: 78,
       hotspots: [
@@ -204,7 +214,8 @@
       clouds: { coverage: 0.24, density: 0.5, base: 1000, top: 2600, speed: 0.5 },
       terrain: { type: 'none', height: 0, layers: 0 },
       water: { on: true, rough: 0.05, level: 0 },
-      grade: { lift: [0.012, 0.014, 0.022], gain: [0.94, 0.98, 1.06], sat: 0.86, tint: '#E9C877' },
+      grade: { lift: [0.012, 0.014, 0.022], gain: [0.94, 0.98, 1.06], sat: 0.86, tint: '#bde8ef' },
+      light: { x: 0.55, y: 0.54, rays: 0.20, haze: 0.30 },
       camera: { h: 85, yaw: 3, pitch: 2.0, fov: 52, dYaw: -5, dPitch: 1.0, dH: 12 },
       drone: 55, hotspots: []
     }

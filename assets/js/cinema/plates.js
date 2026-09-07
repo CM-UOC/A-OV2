@@ -44,8 +44,8 @@
       L.node.style.opacity = o.toFixed(3);
       /* the push-in: 1.06 → 1.14 across a scene, with a little drift */
       var p = keys[i] === aId ? local : local * 0.35;
-      var sc = 1.055 + p * 0.075;
-      var dx = (p - 0.5) * 1.6, dy = (p - 0.5) * -2.4;
+      var sc = 1.035 + p * 0.055;
+      var dx = (p - 0.5) * 1.1, dy = (p - 0.5) * -1.7;
       L.img.style.transform = 'scale(' + sc.toFixed(4) + ') translate3d(' + dx.toFixed(2) + '%,' + dy.toFixed(2) + '%,0)';
     }
   };

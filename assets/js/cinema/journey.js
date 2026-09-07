@@ -120,15 +120,18 @@
     root.style.setProperty('--scene-accent', 'rgb(' + accentRGB + ')');
 
     if (over) {
-      var sunElev = lerp(A.sun.elev, B.sun.elev, t);
-      var sunAz = lerp(A.sun.azim, B.sun.azim, t);
+      var la = A.light || { x: 0.5, y: 0.4, rays: 0.4, haze: 0.4 };
+      var lb = B.light || la;
       var vh2 = window.innerHeight, vw2 = window.innerWidth;
+      /* la luz sigue el push-in del plano, así que los rayos quedan anclados a la imagen */
+      var push = 1.035 + frac * 0.055;
+      var lx = lerp(la.x, lb.x, t), ly = lerp(la.y, lb.y, t);
       over.draw({
         time: now, dt: Math.min(dt, 0.05), accent: accentRGB,
-        sunX: vw2 * (0.5 + sunAz / 90),
-        sunY: vh2 * (0.62 - sunElev / 120),
-        rays: quality.rays * (1 - lerp(A.sun.eclipse, B.sun.eclipse, t) * 0.6) * (sunElev > -8 ? 1 : 0.25),
-        haze: quality.haze * (0.5 + 0.5 * lerp(A.clouds.coverage, B.clouds.coverage, t)),
+        sunX: vw2 * (0.5 + (lx - 0.5) * push) + (frac - 0.5) * vw2 * 0.016,
+        sunY: vh2 * (0.5 + (ly - 0.5) * push) - (frac - 0.5) * vh2 * 0.024,
+        rays: quality.rays * lerp(la.rays, lb.rays, t),
+        haze: quality.haze * lerp(la.haze, lb.haze, t),
         parallax: (frac - 0.5) * 2
       });
     }

@@ -16,7 +16,7 @@
     place2: function (layer, w, h, local, vis) {
       if (!layer || !layer._items) return;
       var items = layer._items;
-      var push = 1.055 + local * 0.075;
+      var push = 1.035 + local * 0.055;
       for (var i = 0; i < items.length; i++) {
         var d = items[i].def;
         var bx = 0.5 + d.az / 78, by = 0.52 - d.el / 46;

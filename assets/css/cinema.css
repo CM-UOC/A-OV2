@@ -22,8 +22,8 @@ body { background: #05070E; }
 .layer--wash {
   z-index: 2;
   background:
-    radial-gradient(120% 70% at 50% 108%, rgba(0, 0, 0, 0.55), transparent 60%),
-    linear-gradient(180deg, rgba(0, 0, 0, 0.42), transparent 26%, transparent 62%, rgba(0, 0, 0, 0.40));
+    linear-gradient(180deg, rgba(0, 0, 0, 0.34), transparent 22%, transparent 68%, rgba(0, 0, 0, 0.30)),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.46) 0%, rgba(0, 0, 0, 0.20) 34%, transparent 58%);
 }
 #skyFallback {
   position: fixed; inset: 0; z-index: 0;
