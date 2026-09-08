@@ -8194,10 +8194,18 @@ body { background: #05070E; }
   var SIZE = 720, CX = SIZE / 2, CY = SIZE / 2, R = 208, GAP = 0.10;
 
   C.passageMap = function (onSelect) {
+    /* los tres arcos, en cada idioma. En alemán y francés se dice el corpus
+       entero, no la abreviatura: «Zweiter Tempel» solo no se entiende. */
+    var T = AD.i18n.text;
     var groups = [
-      { id: 'hb', label: 'Biblia hebrea' },
-      { id: 'st', label: 'Segundo Templo · deuterocanónicos' },
-      { id: 'nt', label: 'Nuevo Testamento' }
+      { id: 'hb', label: T({ es: 'Biblia hebrea', en: 'Hebrew Bible',
+                             de: 'Hebräische Bibel', fr: 'Bible hébraïque' }) },
+      { id: 'st', label: T({ es: 'Segundo Templo y deuterocanónicos',
+                             en: 'Second Temple and deuterocanonical',
+                             de: 'Zweiter Tempel und Deuterokanonisches',
+                             fr: 'Second Temple et deutérocanoniques' }) },
+      { id: 'nt', label: T({ es: 'Nuevo Testamento', en: 'New Testament',
+                             de: 'Neues Testament', fr: 'Nouveau Testament' }) }
     ];
     var byCol = { hb: [], st: [], nt: [] };
     D.mapNodes.forEach(function (n) { byCol[n.col].push(n); });
