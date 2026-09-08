@@ -221,20 +221,37 @@
 /* ============================================================
    Mapa radial de conexiones
    ============================================================ */
+.map-holder { min-width: 0; }
+/* contenedor de desplazamiento: bloque, no rejilla centrada. Con place-items
+   centrado y overflow, lo que rebosa por la izquierda queda inalcanzable. */
 .map-frame {
   padding: var(--sp-4);
-  display: grid; place-items: center;
-  overflow: visible;              /* recortaba el círculo por abajo */
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
 }
 /* el diagrama es cuadrado. Se dimensiona por ANCHO con aspect-ratio, nunca por
    vh: una altura en vh puede resolverse a cero en contextos sin viewport y
-   colapsar el dibujo. El panel ya tiene su propio desplazamiento vertical. */
+   colapsar el dibujo. El mínimo mantiene los rótulos legibles en pantallas
+   estrechas; por debajo, el marco se desplaza en horizontal. */
 .chord-svg {
   display: block; margin: 0 auto;
-  width: min(100%, 720px);
+  width: 100%; max-width: 720px; min-width: 560px;
   aspect-ratio: 1 / 1;
   height: auto;
 }
+.map-legend {
+  list-style: none; margin: var(--sp-3) 0 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-5);
+  font-family: var(--f-mono); font-size: 10px;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+}
+.map-legend__item { display: flex; align-items: center; gap: var(--sp-2); }
+.map-legend__swatch {
+  width: 22px; height: 3px; border-radius: var(--r-xs); background: currentColor;
+}
+.map-legend__item--hb .map-legend__swatch { background: var(--st-foundations); }
+.map-legend__item--st .map-legend__swatch { background: var(--st-origins); }
+.map-legend__item--nt .map-legend__swatch { background: var(--st-parousia); }
 
 .chord {
   fill: none; stroke-width: 1; opacity: 0.30;
@@ -264,7 +281,7 @@
 .cnode__hit { fill: transparent; }
 .cnode__dot { fill: var(--muted-2); transition: r 0.3s ease, fill 0.3s ease; }
 .cnode__label {
-  font-family: var(--f-body); font-size: 9.5px; fill: var(--muted);
+  font-family: var(--f-body); font-size: 10px; fill: var(--muted);
   transition: fill 0.3s ease, font-weight 0.3s ease;
 }
 .cnode:hover .cnode__dot, .cnode.is-active .cnode__dot { r: 6; fill: var(--accent); }

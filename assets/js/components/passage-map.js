@@ -7,11 +7,14 @@
   'use strict';
   var s = AD.util.svg, el = AD.util.el, C = AD.components, D = AD.data;
 
-  /* El lienzo es mayor que el anillo a propósito: las etiquetas salen hacia
-     fuera desde R+10 y el SVG recorta en su borde. Con R = 300 y SIZE = 940
-     quedan 170 unidades de margen en cada lado, suficiente para el rótulo
-     más largo sin que nada se corte por abajo. */
-  var SIZE = 940, CX = SIZE / 2, CY = SIZE / 2, R = 300, GAP = 0.10;
+  /* El lienzo mide 720 unidades: a tamaño nominal una unidad es un píxel, así
+     que los cuerpos de letra del CSS se leen tal cual y no hay que adivinar
+     escalas. El SVG recorta en su borde, de modo que el anillo deja sitio
+     suficiente para el rótulo más largo:
+       anillo 208 · arco 224 · rótulos desde 236 · quedan 124 px hasta el borde.
+     En el aro va la referencia, corta y estable; la frase descriptiva vive en
+     el inspector y en el tooltip, donde se puede leer entera. */
+  var SIZE = 720, CX = SIZE / 2, CY = SIZE / 2, R = 208, GAP = 0.10;
 
   C.passageMap = function (onSelect) {
     var groups = [
@@ -58,27 +61,17 @@
       chordLayer.appendChild(path);
     });
 
-    /* arcos de grupo */
+    /* arcos de grupo: solo el trazo. Los nombres iban girados a R+46 y caían
+       encima de los rótulos de los nodos; ahora son una leyenda horizontal. */
     var ringLayer = s('g', { class: 'rings' });
     arcs.forEach(function (a) {
-      var rr = R + 26;
+      var rr = R + 16;
       var x0 = CX + Math.cos(a.a0) * rr, y0 = CY + Math.sin(a.a0) * rr;
       var x1 = CX + Math.cos(a.a1) * rr, y1 = CY + Math.sin(a.a1) * rr;
       var large = (a.a1 - a.a0) > Math.PI ? 1 : 0;
       ringLayer.appendChild(s('path', {
         class: 'ring ring--' + a.g.id,
         d: 'M' + x0 + ' ' + y0 + ' A' + rr + ' ' + rr + ' 0 ' + large + ' 1 ' + x1 + ' ' + y1
-      }));
-      var am = (a.a0 + a.a1) / 2, lr = R + 46;
-      var deg = am * 180 / Math.PI;
-      var flip = (deg > 90 || deg < -90);
-      ringLayer.appendChild(s('text', {
-        class: 'ring__label',
-        x: CX + Math.cos(am) * lr, y: CY + Math.sin(am) * lr,
-        'text-anchor': 'middle',
-        transform: 'rotate(' + (deg + (flip ? 180 : 0)) + ' ' +
-                   (CX + Math.cos(am) * lr) + ' ' + (CY + Math.sin(am) * lr) + ')',
-        text: a.g.label
       }));
     });
 
@@ -89,7 +82,7 @@
       var p = pos[n.id];
       var deg = p.a * 180 / Math.PI;
       var flip = (deg > 90 || deg < -90);
-      var lx = CX + Math.cos(p.a) * (R + 10), ly = CY + Math.sin(p.a) * (R + 10);
+      var lx = CX + Math.cos(p.a) * (R + 28), ly = CY + Math.sin(p.a) * (R + 28);
       var g = s('g', {
         class: 'cnode' + (n.comparative ? ' is-comparative' : '') + (n.deutero ? ' is-deutero' : ''),
         tabindex: '0', role: 'button',
@@ -102,14 +95,15 @@
           if (ev.key === 'Escape') select(null);
         }
       }, [
-        s('circle', { class: 'cnode__hit', cx: p.x, cy: p.y, r: 11 }),
-        s('circle', { class: 'cnode__dot', cx: p.x, cy: p.y, r: 3.6 }),
+        s('circle', { class: 'cnode__hit', cx: p.x, cy: p.y, r: 11 },
+          [s('title', { text: n.label + ' · ' + n.ref })]),
+        s('circle', { class: 'cnode__dot', cx: p.x, cy: p.y, r: 3.4 }),
         s('text', {
           class: 'cnode__label', x: lx, y: ly,
           'text-anchor': flip ? 'end' : 'start',
           'dominant-baseline': 'middle',
           transform: 'rotate(' + (deg + (flip ? 180 : 0)) + ' ' + lx + ' ' + ly + ')',
-          text: n.label
+          text: n.ref
         })
       ]);
       nodeEls[n.id] = g;
@@ -148,7 +142,12 @@
       'aria-label': 'Diagrama radial de citas y alusiones entre la Biblia hebrea, la literatura del Segundo Templo y el Nuevo Testamento'
     }, [chordLayer, ringLayer, nodeLayer]);
 
-    var wrap = el('div', { class: 'map-frame glass glass--subtle' }, [svg]);
+    var frame = el('div', { class: 'map-frame glass glass--subtle' }, [svg]);
+    var legend = el('ul', { class: 'map-legend' }, groups.map(function (g) {
+      return el('li', { class: 'map-legend__item map-legend__item--' + g.id },
+        [el('span', { class: 'map-legend__swatch' }), el('span', { text: g.label })]);
+    }));
+    var wrap = el('div', { class: 'map-holder' }, [frame, legend]);
     wrap.select = select;
     return wrap;
   };

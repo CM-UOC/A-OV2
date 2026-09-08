@@ -581,9 +581,14 @@ table.cmp tr:last-child td, table.cmp tr:last-child th { border-bottom: none; }
 
 /* --- passage map ------------------------------------------------------ */
 .map-wrap { display: grid; gap: var(--sp-4); }
+/* sin esto una columna de rejilla no puede encoger por debajo del contenido
+   y el diagrama arrastra el panel entero a lo ancho */
+.map-wrap > * { min-width: 0; }
 @media (min-width: 1000px) { .map-wrap { grid-template-columns: 1fr 300px; align-items: start; } }
 .map-frame { border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface); overflow-x: auto; }
-.map-frame svg { display: block; min-width: 720px; width: 100%; height: auto; }
+/* el mínimo de 720 px era del mapa rectangular antiguo; al diagrama radial
+   lo reventaba dentro del panel estrecho, así que queda excluido */
+.map-frame svg:not(.chord-svg) { display: block; min-width: 720px; width: 100%; height: auto; }
 .map-col-label { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; fill: var(--muted-2); }
 .map-node text { font-family: var(--f-body); font-size: 11px; fill: var(--ink-2); }
 .map-node .map-ref { font-family: var(--f-mono); font-size: 9.5px; fill: var(--muted-2); }
@@ -1323,20 +1328,37 @@ body { background: #05070E; }
 /* ============================================================
    Mapa radial de conexiones
    ============================================================ */
+.map-holder { min-width: 0; }
+/* contenedor de desplazamiento: bloque, no rejilla centrada. Con place-items
+   centrado y overflow, lo que rebosa por la izquierda queda inalcanzable. */
 .map-frame {
   padding: var(--sp-4);
-  display: grid; place-items: center;
-  overflow: visible;              /* recortaba el círculo por abajo */
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
 }
 /* el diagrama es cuadrado. Se dimensiona por ANCHO con aspect-ratio, nunca por
    vh: una altura en vh puede resolverse a cero en contextos sin viewport y
-   colapsar el dibujo. El panel ya tiene su propio desplazamiento vertical. */
+   colapsar el dibujo. El mínimo mantiene los rótulos legibles en pantallas
+   estrechas; por debajo, el marco se desplaza en horizontal. */
 .chord-svg {
   display: block; margin: 0 auto;
-  width: min(100%, 720px);
+  width: 100%; max-width: 720px; min-width: 560px;
   aspect-ratio: 1 / 1;
   height: auto;
 }
+.map-legend {
+  list-style: none; margin: var(--sp-3) 0 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-5);
+  font-family: var(--f-mono); font-size: 10px;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+}
+.map-legend__item { display: flex; align-items: center; gap: var(--sp-2); }
+.map-legend__swatch {
+  width: 22px; height: 3px; border-radius: var(--r-xs); background: currentColor;
+}
+.map-legend__item--hb .map-legend__swatch { background: var(--st-foundations); }
+.map-legend__item--st .map-legend__swatch { background: var(--st-origins); }
+.map-legend__item--nt .map-legend__swatch { background: var(--st-parousia); }
 
 .chord {
   fill: none; stroke-width: 1; opacity: 0.30;
@@ -1366,7 +1388,7 @@ body { background: #05070E; }
 .cnode__hit { fill: transparent; }
 .cnode__dot { fill: var(--muted-2); transition: r 0.3s ease, fill 0.3s ease; }
 .cnode__label {
-  font-family: var(--f-body); font-size: 9.5px; fill: var(--muted);
+  font-family: var(--f-body); font-size: 10px; fill: var(--muted);
   transition: fill 0.3s ease, font-weight 0.3s ease;
 }
 .cnode:hover .cnode__dot, .cnode.is-active .cnode__dot { r: 6; fill: var(--accent); }
@@ -8159,11 +8181,14 @@ body { background: #05070E; }
   'use strict';
   var s = AD.util.svg, el = AD.util.el, C = AD.components, D = AD.data;
 
-  /* El lienzo es mayor que el anillo a propósito: las etiquetas salen hacia
-     fuera desde R+10 y el SVG recorta en su borde. Con R = 300 y SIZE = 940
-     quedan 170 unidades de margen en cada lado, suficiente para el rótulo
-     más largo sin que nada se corte por abajo. */
-  var SIZE = 940, CX = SIZE / 2, CY = SIZE / 2, R = 300, GAP = 0.10;
+  /* El lienzo mide 720 unidades: a tamaño nominal una unidad es un píxel, así
+     que los cuerpos de letra del CSS se leen tal cual y no hay que adivinar
+     escalas. El SVG recorta en su borde, de modo que el anillo deja sitio
+     suficiente para el rótulo más largo:
+       anillo 208 · arco 224 · rótulos desde 236 · quedan 124 px hasta el borde.
+     En el aro va la referencia, corta y estable; la frase descriptiva vive en
+     el inspector y en el tooltip, donde se puede leer entera. */
+  var SIZE = 720, CX = SIZE / 2, CY = SIZE / 2, R = 208, GAP = 0.10;
 
   C.passageMap = function (onSelect) {
     var groups = [
@@ -8210,27 +8235,17 @@ body { background: #05070E; }
       chordLayer.appendChild(path);
     });
 
-    /* arcos de grupo */
+    /* arcos de grupo: solo el trazo. Los nombres iban girados a R+46 y caían
+       encima de los rótulos de los nodos; ahora son una leyenda horizontal. */
     var ringLayer = s('g', { class: 'rings' });
     arcs.forEach(function (a) {
-      var rr = R + 26;
+      var rr = R + 16;
       var x0 = CX + Math.cos(a.a0) * rr, y0 = CY + Math.sin(a.a0) * rr;
       var x1 = CX + Math.cos(a.a1) * rr, y1 = CY + Math.sin(a.a1) * rr;
       var large = (a.a1 - a.a0) > Math.PI ? 1 : 0;
       ringLayer.appendChild(s('path', {
         class: 'ring ring--' + a.g.id,
         d: 'M' + x0 + ' ' + y0 + ' A' + rr + ' ' + rr + ' 0 ' + large + ' 1 ' + x1 + ' ' + y1
-      }));
-      var am = (a.a0 + a.a1) / 2, lr = R + 46;
-      var deg = am * 180 / Math.PI;
-      var flip = (deg > 90 || deg < -90);
-      ringLayer.appendChild(s('text', {
-        class: 'ring__label',
-        x: CX + Math.cos(am) * lr, y: CY + Math.sin(am) * lr,
-        'text-anchor': 'middle',
-        transform: 'rotate(' + (deg + (flip ? 180 : 0)) + ' ' +
-                   (CX + Math.cos(am) * lr) + ' ' + (CY + Math.sin(am) * lr) + ')',
-        text: a.g.label
       }));
     });
 
@@ -8241,7 +8256,7 @@ body { background: #05070E; }
       var p = pos[n.id];
       var deg = p.a * 180 / Math.PI;
       var flip = (deg > 90 || deg < -90);
-      var lx = CX + Math.cos(p.a) * (R + 10), ly = CY + Math.sin(p.a) * (R + 10);
+      var lx = CX + Math.cos(p.a) * (R + 28), ly = CY + Math.sin(p.a) * (R + 28);
       var g = s('g', {
         class: 'cnode' + (n.comparative ? ' is-comparative' : '') + (n.deutero ? ' is-deutero' : ''),
         tabindex: '0', role: 'button',
@@ -8254,14 +8269,15 @@ body { background: #05070E; }
           if (ev.key === 'Escape') select(null);
         }
       }, [
-        s('circle', { class: 'cnode__hit', cx: p.x, cy: p.y, r: 11 }),
-        s('circle', { class: 'cnode__dot', cx: p.x, cy: p.y, r: 3.6 }),
+        s('circle', { class: 'cnode__hit', cx: p.x, cy: p.y, r: 11 },
+          [s('title', { text: n.label + ' · ' + n.ref })]),
+        s('circle', { class: 'cnode__dot', cx: p.x, cy: p.y, r: 3.4 }),
         s('text', {
           class: 'cnode__label', x: lx, y: ly,
           'text-anchor': flip ? 'end' : 'start',
           'dominant-baseline': 'middle',
           transform: 'rotate(' + (deg + (flip ? 180 : 0)) + ' ' + lx + ' ' + ly + ')',
-          text: n.label
+          text: n.ref
         })
       ]);
       nodeEls[n.id] = g;
@@ -8300,7 +8316,12 @@ body { background: #05070E; }
       'aria-label': 'Diagrama radial de citas y alusiones entre la Biblia hebrea, la literatura del Segundo Templo y el Nuevo Testamento'
     }, [chordLayer, ringLayer, nodeLayer]);
 
-    var wrap = el('div', { class: 'map-frame glass glass--subtle' }, [svg]);
+    var frame = el('div', { class: 'map-frame glass glass--subtle' }, [svg]);
+    var legend = el('ul', { class: 'map-legend' }, groups.map(function (g) {
+      return el('li', { class: 'map-legend__item map-legend__item--' + g.id },
+        [el('span', { class: 'map-legend__swatch' }), el('span', { text: g.label })]);
+    }));
+    var wrap = el('div', { class: 'map-holder' }, [frame, legend]);
     wrap.select = select;
     return wrap;
   };

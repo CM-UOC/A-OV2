@@ -320,9 +320,14 @@ table.cmp tr:last-child td, table.cmp tr:last-child th { border-bottom: none; }
 
 /* --- passage map ------------------------------------------------------ */
 .map-wrap { display: grid; gap: var(--sp-4); }
+/* sin esto una columna de rejilla no puede encoger por debajo del contenido
+   y el diagrama arrastra el panel entero a lo ancho */
+.map-wrap > * { min-width: 0; }
 @media (min-width: 1000px) { .map-wrap { grid-template-columns: 1fr 300px; align-items: start; } }
 .map-frame { border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface); overflow-x: auto; }
-.map-frame svg { display: block; min-width: 720px; width: 100%; height: auto; }
+/* el mínimo de 720 px era del mapa rectangular antiguo; al diagrama radial
+   lo reventaba dentro del panel estrecho, así que queda excluido */
+.map-frame svg:not(.chord-svg) { display: block; min-width: 720px; width: 100%; height: auto; }
 .map-col-label { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; fill: var(--muted-2); }
 .map-node text { font-family: var(--f-body); font-size: 11px; fill: var(--ink-2); }
 .map-node .map-ref { font-family: var(--f-mono); font-size: 9.5px; fill: var(--muted-2); }
