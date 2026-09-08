@@ -45,7 +45,7 @@
       el('div', { class: 'pv__panel glass glass--strong' }, [closeBtn].concat(body))
     ]);
     document.body.appendChild(layer);
-    requestAnimationFrame(function () { layer.classList.add('is-open'); });
+    AD.util.nextFrame(function () { if (layer) layer.classList.add('is-open'); });
     closeBtn.focus();
   }
 

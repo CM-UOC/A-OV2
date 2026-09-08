@@ -73,8 +73,20 @@
 
   function pluralize(n, one, many) { return n === 1 ? one : (many || one + 's'); }
 
+  /* Activa un estado en el siguiente fotograma, pero garantiza que se aplique
+     aunque requestAnimationFrame no llegue a ejecutarse: ocurre en pestañas en
+     segundo plano, en modo de ahorro de energía y en algunos entornos sin
+     composición. El estado visual nunca debe depender de que corra la animación. */
+  function nextFrame(fn) {
+    var done = false;
+    function run() { if (done) return; done = true; fn(); }
+    if (typeof requestAnimationFrame === 'function') requestAnimationFrame(run);
+    setTimeout(run, 60);
+  }
+
   AD.util = {
     el: el, svg: svgEl, clear: clear, slug: slug, fold: fold,
-    debounce: debounce, reducedMotion: reducedMotion, pluralize: pluralize
+    debounce: debounce, reducedMotion: reducedMotion, pluralize: pluralize,
+    nextFrame: nextFrame
   };
 })(window);

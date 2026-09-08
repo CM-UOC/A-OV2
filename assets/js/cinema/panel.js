@@ -115,6 +115,9 @@
 
       scrim.classList.add('is-open');
       drawer.classList.add('is-open');
+      AD.util.nextFrame(function () {
+        if (openKey) { drawer.style.translate = '0 0'; scrim.style.opacity = '1'; }
+      });
       lock(true);
       if (AD.journey && AD.journey.setPaused) AD.journey.setPaused(true);
       if (AD.audio && AD.audio.isOn && AD.audio.isOn()) AD.audio.chime(isEvent ? 528 : 396);
@@ -131,6 +134,8 @@
       openKey = null;
       scrim.classList.remove('is-open');
       drawer.classList.remove('is-open');
+      drawer.style.translate = '';
+      scrim.style.opacity = '';
       lock(false);
       if (AD.journey && AD.journey.setPaused) AD.journey.setPaused(false);
       if (lastFocus && lastFocus.focus) lastFocus.focus();

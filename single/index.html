@@ -1617,9 +1617,21 @@ body { background: #05070E; }
 
   function pluralize(n, one, many) { return n === 1 ? one : (many || one + 's'); }
 
+  /* Activa un estado en el siguiente fotograma, pero garantiza que se aplique
+     aunque requestAnimationFrame no llegue a ejecutarse: ocurre en pestañas en
+     segundo plano, en modo de ahorro de energía y en algunos entornos sin
+     composición. El estado visual nunca debe depender de que corra la animación. */
+  function nextFrame(fn) {
+    var done = false;
+    function run() { if (done) return; done = true; fn(); }
+    if (typeof requestAnimationFrame === 'function') requestAnimationFrame(run);
+    setTimeout(run, 60);
+  }
+
   AD.util = {
     el: el, svg: svgEl, clear: clear, slug: slug, fold: fold,
-    debounce: debounce, reducedMotion: reducedMotion, pluralize: pluralize
+    debounce: debounce, reducedMotion: reducedMotion, pluralize: pluralize,
+    nextFrame: nextFrame
   };
 })(window);
 
@@ -7454,7 +7466,7 @@ body { background: #05070E; }
       el('div', { class: 'pv__panel glass glass--strong' }, [closeBtn].concat(body))
     ]);
     document.body.appendChild(layer);
-    requestAnimationFrame(function () { layer.classList.add('is-open'); });
+    AD.util.nextFrame(function () { if (layer) layer.classList.add('is-open'); });
     closeBtn.focus();
   }
 
@@ -9244,7 +9256,7 @@ body { background: #05070E; }
       ])
     ]);
     document.body.appendChild(node);
-    requestAnimationFrame(function () { node.classList.add('is-open'); });
+    AD.util.nextFrame(function () { if (node) node.classList.add('is-open'); });
     var first = node.querySelector('.sheet__item');
     if (first) first.focus();
   }
@@ -9353,7 +9365,7 @@ body { background: #05070E; }
     var r = btn.getBoundingClientRect();
     pop.style.top = Math.round(r.bottom + 10) + 'px';
     pop.style.right = Math.max(12, Math.round(window.innerWidth - r.right)) + 'px';
-    requestAnimationFrame(function () { pop.classList.add('is-open'); });
+    AD.util.nextFrame(function () { if (pop) pop.classList.add('is-open'); });
     setTimeout(function () { document.addEventListener('click', onOutside, true); }, 0);
     var f = pop.querySelector('button');
     if (f) f.focus();
@@ -9483,6 +9495,9 @@ body { background: #05070E; }
 
       scrim.classList.add('is-open');
       drawer.classList.add('is-open');
+      AD.util.nextFrame(function () {
+        if (openKey) { drawer.style.translate = '0 0'; scrim.style.opacity = '1'; }
+      });
       lock(true);
       if (AD.journey && AD.journey.setPaused) AD.journey.setPaused(true);
       if (AD.audio && AD.audio.isOn && AD.audio.isOn()) AD.audio.chime(isEvent ? 528 : 396);
@@ -9499,6 +9514,8 @@ body { background: #05070E; }
       openKey = null;
       scrim.classList.remove('is-open');
       drawer.classList.remove('is-open');
+      drawer.style.translate = '';
+      scrim.style.opacity = '';
       lock(false);
       if (AD.journey && AD.journey.setPaused) AD.journey.setPaused(false);
       if (lastFocus && lastFocus.focus) lastFocus.focus();

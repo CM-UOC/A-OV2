@@ -102,7 +102,7 @@
       ])
     ]);
     document.body.appendChild(node);
-    requestAnimationFrame(function () { node.classList.add('is-open'); });
+    AD.util.nextFrame(function () { if (node) node.classList.add('is-open'); });
     var first = node.querySelector('.sheet__item');
     if (first) first.focus();
   }

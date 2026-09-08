@@ -99,7 +99,7 @@
     var r = btn.getBoundingClientRect();
     pop.style.top = Math.round(r.bottom + 10) + 'px';
     pop.style.right = Math.max(12, Math.round(window.innerWidth - r.right)) + 'px';
-    requestAnimationFrame(function () { pop.classList.add('is-open'); });
+    AD.util.nextFrame(function () { if (pop) pop.classList.add('is-open'); });
     setTimeout(function () { document.addEventListener('click', onOutside, true); }, 0);
     var f = pop.querySelector('button');
     if (f) f.focus();
