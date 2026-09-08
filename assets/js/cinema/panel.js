@@ -16,7 +16,7 @@
     enoch:       { title: '1 Enoch', view: function () { return AD.views.enoch(); } },
     canon:       { title: 'Canon & apocrypha', view: function () { return AD.views.canon(); } },
     books:       { title: 'Canon survey', view: function (p) { return AD.views.books(p); } },
-    map:         { title: 'Passage map', view: function () { return AD.views.map(); } },
+    map:         { title: 'Passage map', wide: true, view: function () { return AD.views.map(); } },
     glossary:    { title: 'Glossary', view: function (p) { return AD.views.glossary(p); } },
     methodology: { title: 'Methodology', view: function () { return AD.views.methodology(); } },
     sources:     { title: 'Sources', view: function () { return AD.views.sources(); } },
