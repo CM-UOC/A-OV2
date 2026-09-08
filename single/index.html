@@ -8159,7 +8159,11 @@ body { background: #05070E; }
   'use strict';
   var s = AD.util.svg, el = AD.util.el, C = AD.components, D = AD.data;
 
-  var SIZE = 860, CX = SIZE / 2, CY = SIZE / 2, R = 300, GAP = 0.10;
+  /* El lienzo es mayor que el anillo a propósito: las etiquetas salen hacia
+     fuera desde R+10 y el SVG recorta en su borde. Con R = 300 y SIZE = 940
+     quedan 170 unidades de margen en cada lado, suficiente para el rótulo
+     más largo sin que nada se corte por abajo. */
+  var SIZE = 940, CX = SIZE / 2, CY = SIZE / 2, R = 300, GAP = 0.10;
 
   C.passageMap = function (onSelect) {
     var groups = [
