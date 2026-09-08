@@ -1,0 +1,154 @@
+/* ============================================================
+   Cromo reconstruido: tres controles, una hoja de exploración y
+   un desplegable de ajustes. Orden de capas corregido para que el
+   HUD siga siendo utilizable con un panel abierto.
+   ============================================================ */
+
+/* --- orden de capas, en un solo sitio ------------------------------- */
+.drawer-scrim { z-index: 88 !important; }
+.drawer       { z-index: 92 !important; }
+.hud          { z-index: 96 !important; }
+.sheet        { z-index: 100; }
+.prefs        { z-index: 102; }
+.overlay      { z-index: 110 !important; }
+.pv           { z-index: 120 !important; }
+
+/* el panel entra con la propiedad translate, no con transform:
+   así ninguna regla de transform puede anularlo */
+.drawer {
+  transform: none !important;
+  translate: 100% 0;
+  transition: translate 0.52s cubic-bezier(.16,.84,.28,1), box-shadow 0.4s ease;
+  will-change: translate;
+}
+.drawer.is-open { translate: 0 0; }
+@media (prefers-reduced-motion: reduce) {
+  .drawer { transition: none; }
+}
+
+/* --- HUD ------------------------------------------------------------ */
+.hud {
+  padding: clamp(0.8rem, 1.8vw, 1.4rem) clamp(0.9rem, 3vw, 2rem);
+  align-items: flex-start;
+}
+.hud__mark b { font-size: 1.02rem; }
+.hud__tools {
+  display: flex; align-items: center; gap: 4px;
+  padding: 5px; border-radius: 13px;
+}
+
+.ctl {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  height: 34px; padding: 0 0.7rem; border-radius: 9px;
+  border: 1px solid transparent; background: transparent;
+  color: var(--hud-ink);
+  font-family: var(--f-mono); font-size: 0.625rem; letter-spacing: 0.12em;
+  text-transform: uppercase; white-space: nowrap;
+  transition: background 0.24s ease, color 0.24s ease, transform 0.24s cubic-bezier(.2,.7,.3,1);
+}
+.ctl svg { width: 14px; height: 14px; flex: none; }
+.ctl:hover { background: rgba(255, 255, 255, 0.10); }
+.ctl:active { transform: scale(0.96); }
+.ctl--primary {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+.ctl--primary:hover { background: rgba(255, 255, 255, 0.20); }
+.ctl--icon { width: 34px; padding: 0; justify-content: center; }
+.ctl[aria-expanded="true"] { background: var(--scene-accent); color: #10131c; border-color: transparent; }
+@media (max-width: 640px) {
+  .ctl__label { display: none; }
+  .ctl { width: 34px; padding: 0; justify-content: center; }
+  .hud__mark span { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .ctl { transition: none; } }
+
+/* --- hoja de exploración -------------------------------------------- */
+.sheet { position: fixed; inset: 0; display: grid; place-items: center; padding: var(--sp-4); }
+.sheet__scrim {
+  position: absolute; inset: 0; background: rgba(4, 6, 12, 0.55);
+  opacity: 0; transition: opacity 0.34s ease;
+}
+.sheet.is-open .sheet__scrim { opacity: 1; }
+.sheet__panel {
+  position: relative; width: min(66rem, 100%); max-height: 86vh; overflow-y: auto;
+  padding: clamp(1.4rem, 3vw, 2.4rem);
+  background: var(--surface);
+  opacity: 0; translate: 0 18px; scale: 0.985;
+  transition: opacity 0.36s ease, translate 0.46s cubic-bezier(.16,.84,.28,1), scale 0.46s cubic-bezier(.16,.84,.28,1);
+}
+.sheet.is-open .sheet__panel { opacity: 1; translate: 0 0; scale: 1; }
+.sheet__close {
+  position: absolute; top: 0.9rem; right: 0.9rem; width: 30px; height: 30px;
+  border-radius: 50%; border: 1px solid var(--line); color: var(--ink-2); background: var(--surface-2);
+}
+.sheet__close:hover { border-color: var(--accent); color: var(--ink); }
+.sheet__cols { display: grid; gap: var(--sp-5); }
+@media (min-width: 860px) { .sheet__cols { grid-template-columns: repeat(3, 1fr); } }
+.sheet__gtitle {
+  font-family: var(--f-mono); font-size: 0.5625rem; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--muted-2); margin-bottom: var(--sp-3);
+}
+.sheet__item {
+  display: grid; gap: 0.2rem; width: 100%; text-align: left;
+  padding: 0.7rem 0.85rem; border-radius: 10px; margin-bottom: 3px;
+  border: 1px solid transparent;
+  opacity: 0; translate: 0 8px;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.sheet.is-open .sheet__item {
+  animation: sheetIn 0.44s cubic-bezier(.16,.84,.28,1) forwards;
+  animation-delay: calc(60ms * var(--gi, 0) + 34ms * var(--ii, 0));
+}
+@keyframes sheetIn { to { opacity: 1; translate: 0 0; } }
+.sheet__item:hover { background: var(--surface-2); border-color: var(--line); }
+.sheet__name { font-family: var(--f-display); font-size: 1.06rem; color: var(--ink); }
+.sheet__note { font-size: var(--t-xs); color: var(--muted); line-height: 1.4; }
+.sheet__stages { display: flex; flex-wrap: wrap; gap: 4px; opacity: 0; translate: 0 8px; }
+.sheet.is-open .sheet__stages {
+  animation: sheetIn 0.44s cubic-bezier(.16,.84,.28,1) forwards; animation-delay: 120ms;
+}
+.sheet__stage {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.34rem 0.55rem; border-radius: 8px;
+  border: 1px solid var(--line-soft); background: var(--surface-2);
+  font-size: var(--t-xs); color: var(--ink-2);
+}
+.sheet__stage:hover { border-color: var(--accent-line); color: var(--ink); }
+.sheet__num { font-family: var(--f-mono); font-size: 0.5625rem; color: var(--accent-ink); }
+@media (prefers-reduced-motion: reduce) {
+  .sheet__panel, .sheet__scrim { transition: none; }
+  .sheet__panel { opacity: 1; translate: 0 0; scale: 1; }
+  .sheet__item, .sheet__stages { animation: none; opacity: 1; translate: 0 0; }
+}
+
+/* --- ajustes --------------------------------------------------------- */
+.prefs {
+  position: fixed; width: min(20rem, calc(100vw - 24px));
+  padding: var(--sp-4); background: var(--surface);
+  display: grid; gap: var(--sp-3);
+  opacity: 0; translate: 0 -8px; scale: 0.97;
+  transform-origin: top right;
+  transition: opacity 0.24s ease, translate 0.3s cubic-bezier(.16,.84,.28,1), scale 0.3s cubic-bezier(.16,.84,.28,1);
+}
+.prefs.is-open { opacity: 1; translate: 0 0; scale: 1; }
+.prefs__row { display: grid; gap: 0.4rem; }
+.prefs__label {
+  font-family: var(--f-mono); font-size: 0.5625rem; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--muted-2);
+}
+.seg {
+  display: flex; gap: 2px; padding: 3px;
+  background: var(--surface-2); border: 1px solid var(--line-soft); border-radius: 9px;
+}
+.seg button {
+  flex: 1; padding: 0.34rem 0.3rem; border-radius: 6px;
+  font-family: var(--f-mono); font-size: 0.5625rem; letter-spacing: 0.06em;
+  color: var(--muted); white-space: nowrap;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.seg button:hover { color: var(--ink); }
+.seg button[aria-current="true"] { background: var(--accent-soft); color: var(--accent-ink); font-weight: 600; }
+@media (prefers-reduced-motion: reduce) {
+  .prefs { transition: none; opacity: 1; translate: 0 0; scale: 1; }
+}

@@ -3,7 +3,7 @@
   'use strict';
   var el = AD.util.el, s = AD.util.svg, C = AD.components, store = AD.store, D = AD.data;
 
-  var ticks = [], railFill = null, soundBtn = null, themeBtn = null;
+  var ticks = [], railFill = null;
 
   function icon(paths) {
     return s('svg', {
@@ -16,8 +16,6 @@
       s('circle', { cx: '7', cy: '7', r: '4.4' }), s('path', { d: 'M10.4 10.4 L14.4 14.4' })
     ]);
   }
-  var SOUND_ON = ['M3 6.5h2.5L9 4v8L5.5 9.5H3z', 'M11.4 5.6a3.4 3.4 0 0 1 0 4.8', 'M13.3 3.7a6 6 0 0 1 0 8.6'];
-  var SOUND_OFF = ['M3 6.5h2.5L9 4v8L5.5 9.5H3z', 'M11.5 6.2 14.5 9.8', 'M14.5 6.2 11.5 9.8'];
 
   function themeLabel() {
     return store.theme === 'system' ? 'Auto' : (store.theme === 'dark' ? 'Dark' : 'Light');
@@ -28,104 +26,44 @@
       class: 'hud__mark', href: '#/',
       onclick: function () { window.scrollTo({ top: 0, behavior: AD.util.reducedMotion() ? 'auto' : 'smooth' }); }
     }, [
-      el('b', { text: 'The Appointed Time' }),
-      el('span', { text: 'Genesis 1 — Revelation 22' })
+      el('b', { text: AD.i18n.t('site.title') }),
+      el('span', { text: AD.i18n.t('site.tagline') })
     ]);
 
     var searchBtn = el('button', {
-      class: 'ghost', type: 'button', 'aria-label': 'Search everything',
+      class: 'ctl', type: 'button', 'aria-label': AD.i18n.t('nav.search'),
       onclick: function () { C.search.open(); }
-    }, [searchIcon(), el('span', { class: 'ghost__label', text: 'Search' })]);
+    }, [searchIcon(), el('span', { class: 'ctl__label', text: AD.i18n.t('nav.search') })]);
 
-    var indexBtn = el('button', {
-      class: 'ghost', type: 'button', 'aria-label': 'Open the index of all entries',
-      onclick: function () { AD.panel.open('index'); }
-    }, [icon(['M2.5 4h11', 'M2.5 8h11', 'M2.5 12h7']), el('span', { class: 'ghost__label', text: 'Index' })]);
+    var exploreBtn = el('button', {
+      class: 'ctl ctl--primary', type: 'button', 'aria-haspopup': 'dialog',
+      onclick: function () { AD.sheet.open(); }
+    }, [
+      icon(['M2.5 4.5h11', 'M2.5 9h11', 'M2.5 13.5h7']),
+      el('span', { class: 'ctl__label', text: exploreLabel() })
+    ]);
 
-    var studyBtn = el('button', {
-      class: 'ghost', type: 'button', 'aria-label': 'Study mode — the full corpus',
-      onclick: function () { AD.panel.open('study'); }
-    }, [icon(['M8 2.5 2.5 5.5 8 8.5 13.5 5.5z', 'M2.5 10.5 8 13.5 13.5 10.5']),
-        el('span', { class: 'ghost__label', text: 'Study' })]);
+    var settingsBtn = el('button', {
+      class: 'ctl ctl--icon', type: 'button', 'aria-label': settingsLabel(), 'aria-expanded': 'false',
+      onclick: function (e) { e.stopPropagation(); AD.prefs.toggle(settingsBtn); }
+    }, [icon(['M8 5.6a2.4 2.4 0 1 0 0 4.8 2.4 2.4 0 0 0 0-4.8z',
+              'M13 8a5 5 0 0 0-.1-.9l1.2-.9-1.2-2-1.4.5a5 5 0 0 0-1.5-.9L9.7 2H6.3l-.3 1.8a5 5 0 0 0-1.5.9L3.1 4.2l-1.2 2 1.2.9A5 5 0 0 0 3 8a5 5 0 0 0 .1.9l-1.2.9 1.2 2 1.4-.5a5 5 0 0 0 1.5.9L6.3 14h3.4l.3-1.8a5 5 0 0 0 1.5-.9l1.4.5 1.2-2-1.2-.9A5 5 0 0 0 13 8z'])]);
 
-    var atlasBtn = el('button', {
-      class: 'ghost', type: 'button', 'aria-label': 'Map of places',
-      onclick: function () { AD.panel.open('atlas'); }
-    }, [icon(['M2 4.2 6 2.6 10 4.6 14 3v8.4l-4 1.6-4-2-4 1.6z', 'M6 2.6v8.6', 'M10 4.6v8.6']),
-        el('span', { class: 'ghost__label', text: 'Atlas' })]);
+    AD.hudRefs = { mark: mark, search: searchBtn, explore: exploreBtn, settings: settingsBtn };
 
-    themeBtn = el('button', {
-      class: 'ghost', type: 'button',
-      'aria-label': 'Reading surface theme: ' + themeLabel() + '. Activate to change.',
-      onclick: function () {
-        store.cycleTheme();
-        AD.util.clear(themeBtn);
-        themeBtn.appendChild(el('span', { class: 'ghost__label', text: themeLabel() }));
-        themeBtn.setAttribute('aria-label', 'Reading surface theme: ' + themeLabel() + '. Activate to change.');
-      }
-    }, [el('span', { class: 'ghost__label', text: themeLabel() })]);
-
-    var langBtns = {};
-    var langBox = el('div', {
-      class: 'lang', role: 'group', 'aria-label': AD.i18n.t('nav.language')
-    }, D.locales.map(function (L) {
-      var b = el('button', {
-        type: 'button', lang: L.html, 'aria-label': L.name,
-        'aria-current': AD.i18n.get() === L.id ? 'true' : 'false',
-        onclick: function () { AD.i18n.set(L.id); }
-      }, L.flagWord);
-      langBtns[L.id] = b;
-      return b;
-    }));
-    AD.i18n.onChange(function (lang) {
-      D.locales.forEach(function (L) {
-        langBtns[L.id].setAttribute('aria-current', L.id === lang ? 'true' : 'false');
-      });
-    });
-
-    var questionsBtn = el('button', {
-      class: 'ghost', type: 'button', 'aria-label': AD.i18n.t('nav.questions'),
-      onclick: function () { AD.panel.open('questions'); }
-    }, [icon(['M6 6a2 2 0 1 1 2.6 1.9c-.6.2-.9.7-.9 1.3v.6', 'M8 12.6h.01']),
-        el('span', { class: 'ghost__label', text: AD.i18n.t('nav.questions') })]);
-
-    var tools = [searchBtn, questionsBtn, indexBtn, atlasBtn, studyBtn, themeBtn, langBox];
-
-    if (AD.audio.available()) {
-      soundBtn = el('button', {
-        class: 'ghost', type: 'button', 'aria-pressed': 'false',
-        'aria-label': 'Ambient sound, currently off. Activate to turn on.',
-        onclick: function () {
-          var on = AD.audio.toggle();
-          soundBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-          soundBtn.setAttribute('aria-label', 'Ambient sound, currently ' + (on ? 'on' : 'off') + '. Activate to turn ' + (on ? 'off' : 'on') + '.');
-          AD.util.clear(soundBtn);
-          soundBtn.appendChild(icon(on ? SOUND_ON : SOUND_OFF));
-          soundBtn.appendChild(el('span', { class: 'ghost__label', text: on ? 'Sound' : 'Muted' }));
-          var note = document.getElementById('audioNote');
-          if (note) { note.textContent = AD.audio.describe(); note.hidden = !on; }
-        }
-      }, [icon(SOUND_OFF), el('span', { class: 'ghost__label', text: 'Muted' })]);
-      var trackBox = el('div', { class: 'lang track-pick', role: 'group', 'aria-label': AD.i18n.t('sound.track') },
-        AD.audio.tracks().map(function (T) {
-          var b = el('button', {
-            type: 'button', 'aria-label': AD.i18n.t('sound.track') + ': ' + (T.name[AD.i18n.get()] || T.id),
-            'aria-current': AD.audio.currentTrack() === T.id ? 'true' : 'false',
-            onclick: function () {
-              AD.audio.setTrack(T.id);
-              trackBox.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-current', 'false'); });
-              b.setAttribute('aria-current', 'true');
-              var note = document.getElementById('audioNote');
-              if (note && AD.audio.isOn()) note.textContent = AD.audio.describe();
-            }
-          }, (T.name[AD.i18n.get()] || T.id));
-          return b;
-        }));
-      tools.splice(5, 0, soundBtn, trackBox);
-    }
-
-    return el('div', { class: 'hud' }, [mark, el('div', { class: 'hud__tools' }, tools)]);
+    return el('div', { class: 'hud' }, [
+      mark,
+      el('div', { class: 'hud__tools glass glass--subtle' }, [searchBtn, exploreBtn, settingsBtn])
+    ]);
   }
+
+  function exploreLabel() {
+    return { es: 'Explorar', en: 'Explore', de: 'Entdecken', fr: 'Explorer' }[AD.i18n.get()] || 'Explore';
+  }
+  function settingsLabel() {
+    return { es: 'Ajustes', en: 'Settings', de: 'Einstellungen', fr: 'Réglages' }[AD.i18n.get()] || 'Settings';
+  }
+  AD.labels = { explore: exploreLabel, settings: settingsLabel };
 
   function buildScrub() {
     ticks = D.scenes.map(function (sc, i) {
@@ -212,6 +150,14 @@
     });
 
     AD.i18n.onChange(function () {
+      if (AD.hudRefs) {
+        AD.hudRefs.mark.querySelector('b').textContent = AD.i18n.t('site.title');
+        AD.hudRefs.mark.querySelector('span').textContent = AD.i18n.t('site.tagline');
+        AD.hudRefs.search.querySelector('.ctl__label').textContent = AD.i18n.t('nav.search');
+        AD.hudRefs.search.setAttribute('aria-label', AD.i18n.t('nav.search'));
+        AD.hudRefs.explore.querySelector('.ctl__label').textContent = exploreLabel();
+        AD.hudRefs.settings.setAttribute('aria-label', settingsLabel());
+      }
       var open = AD.panel.isOpen() ? AD.panel.current() : null;
       AD.journey.relabel();
       if (open) { AD.panel.close(true); AD.panel.open(open, null, true); }
