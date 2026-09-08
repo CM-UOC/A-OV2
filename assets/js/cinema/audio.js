@@ -11,6 +11,18 @@
   'use strict';
 
   var ctx = null, master = null, wet = null, started = false, on = false;
+
+  /* Bandas sonoras: no son pistas grabadas sino caracteres del mismo motor.
+     El control visible sólo ofrece encender, apagar y elegir entre estas. */
+  var TRACKS = [
+    { id: 'strings', gain: 1.00, wet: 0.56, cut: 1.00, bell: 1.00, air: 1.00, wave: 'sine',
+      name: { es: 'Cuerdas', en: 'Strings', de: 'Streicher', fr: 'Cordes' } },
+    { id: 'choral',  gain: 0.92, wet: 0.78, cut: 0.72, bell: 0.55, air: 1.60, wave: 'triangle',
+      name: { es: 'Coral',   en: 'Choral',  de: 'Choral',    fr: 'Choral' } },
+    { id: 'minimal', gain: 0.80, wet: 0.40, cut: 0.55, bell: 0.00, air: 0.55, wave: 'sine',
+      name: { es: 'Mínimo',  en: 'Minimal', de: 'Minimal',   fr: 'Minimal' } }
+  ];
+  var track = TRACKS[0];
   var drone = [], pad = null, panner = null;
   var timer = null, nextNote = 0, step = 0, chordIdx = 0;
   var scene = null, target = null, blend = 0;
@@ -62,7 +74,7 @@
     master.connect(ctx.destination);
 
     /* a small feedback-delay reverb: three prime-ish delays through a lowpass */
-    wet = ctx.createGain(); wet.gain.value = 0.56;
+    wet = ctx.createGain(); wet.gain.value = track.wet;
     var damp = ctx.createBiquadFilter();
     damp.type = 'lowpass'; damp.frequency.value = 1500;
     [0.137, 0.211, 0.313].forEach(function (d) {
@@ -153,7 +165,7 @@
       }
 
       /* the motif, with rests so it breathes */
-      if (Math.random() > v.sparse) {
+      if (track.bell > 0 && Math.random() > (1 - (1 - v.sparse) * track.bell)) {
         var d = v.motif[step % v.motif.length] + v.prog[chordIdx];
         var f = hz(degree(v, d) + v.oct * 12);
         pluck(f, when, 0.026 + Math.random() * 0.016, (Math.random() - 0.5) * 0.6);
@@ -192,7 +204,7 @@
       var t = ctx.currentTime;
       master.gain.cancelScheduledValues(t);
       master.gain.setValueAtTime(master.gain.value, t);
-      master.gain.linearRampToValueAtTime(on ? 0.115 : 0, t + (on ? 3.0 : 1.1));
+      master.gain.linearRampToValueAtTime(on ? 0.115 * track.gain : 0, t + (on ? 3.0 : 1.1));
       if (on) {
         nextNote = ctx.currentTime + 0.25;
         step = 0; chordIdx = -1;
@@ -213,10 +225,10 @@
       }
       if (!on) return;
       var t = ctx.currentTime;
-      var cut = 620 + brightness * 2400;
+      var cut = (620 + brightness * 2400) * track.cut;
       drone.forEach(function (d) { d.filt.frequency.setTargetAtTime(cut, t, 1.5); });
       pad.forEach(function (p) { p.filt.frequency.setTargetAtTime(cut * 1.6, t, 1.5); });
-      if (AD.audio._noise) AD.audio._noise.gain.setTargetAtTime(0.018 + brightness * 0.05, t, 1.5);
+      if (AD.audio._noise) AD.audio._noise.gain.setTargetAtTime((0.018 + brightness * 0.05) * track.air, t, 1.5);
       if (panner) panner.pan.setTargetAtTime(Math.max(-0.8, Math.min(0.8, pan || 0)), t, 0.8);
     },
 
@@ -228,12 +240,27 @@
       pluck(hz(degree(v, up ? 7 : 4) + 24), t + 0.14, 0.016, 0.2);
     },
 
+    tracks: function () { return TRACKS; },
+    currentTrack: function () { return track.id; },
+    setTrack: function (id) {
+      var t2 = TRACKS.filter(function (x) { return x.id === id; })[0];
+      if (!t2) return;
+      track = t2;
+      if (!started || !on) return;
+      var now = ctx.currentTime;
+      master.gain.setTargetAtTime(0.115 * track.gain, now, 1.2);
+      wet.gain.setTargetAtTime(track.wet, now, 1.2);
+      pad.forEach(function (p) { p.osc.type = track.wave === 'triangle' ? 'triangle' : 'sine'; });
+    },
+
     /* an accessible description of what is playing */
     describe: function () {
       var v = VOICE[scene] || VOICE.prologue;
       if (!on) return 'Ambient sound is off.';
-      return 'Ambient sound: a low drone and a slow ' + v.mode + ' chord progression, ' +
-        'with an occasional soft bell, at about ' + v.bpm + ' beats per minute. No speech.';
+      var n = track.name[AD.i18n ? AD.i18n.get() : 'en'] || track.id;
+      return 'Ambient sound (' + n + '): a low drone and a slow ' + v.mode + ' chord progression' +
+        (track.bell > 0 ? ', with an occasional soft bell' : '') +
+        ', at about ' + v.bpm + ' beats per minute. No speech.';
     }
   };
 })(window.AD);

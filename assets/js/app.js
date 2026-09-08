@@ -65,7 +65,31 @@
       }
     }, [el('span', { class: 'ghost__label', text: themeLabel() })]);
 
-    var tools = [searchBtn, indexBtn, atlasBtn, studyBtn, themeBtn];
+    var langBtns = {};
+    var langBox = el('div', {
+      class: 'lang', role: 'group', 'aria-label': AD.i18n.t('nav.language')
+    }, D.locales.map(function (L) {
+      var b = el('button', {
+        type: 'button', lang: L.html, 'aria-label': L.name,
+        'aria-current': AD.i18n.get() === L.id ? 'true' : 'false',
+        onclick: function () { AD.i18n.set(L.id); }
+      }, L.flagWord);
+      langBtns[L.id] = b;
+      return b;
+    }));
+    AD.i18n.onChange(function (lang) {
+      D.locales.forEach(function (L) {
+        langBtns[L.id].setAttribute('aria-current', L.id === lang ? 'true' : 'false');
+      });
+    });
+
+    var questionsBtn = el('button', {
+      class: 'ghost', type: 'button', 'aria-label': AD.i18n.t('nav.questions'),
+      onclick: function () { AD.panel.open('questions'); }
+    }, [icon(['M6 6a2 2 0 1 1 2.6 1.9c-.6.2-.9.7-.9 1.3v.6', 'M8 12.6h.01']),
+        el('span', { class: 'ghost__label', text: AD.i18n.t('nav.questions') })]);
+
+    var tools = [searchBtn, questionsBtn, indexBtn, atlasBtn, studyBtn, themeBtn, langBox];
 
     if (AD.audio.available()) {
       soundBtn = el('button', {
@@ -82,7 +106,22 @@
           if (note) { note.textContent = AD.audio.describe(); note.hidden = !on; }
         }
       }, [icon(SOUND_OFF), el('span', { class: 'ghost__label', text: 'Muted' })]);
-      tools.splice(4, 0, soundBtn);
+      var trackBox = el('div', { class: 'lang track-pick', role: 'group', 'aria-label': AD.i18n.t('sound.track') },
+        AD.audio.tracks().map(function (T) {
+          var b = el('button', {
+            type: 'button', 'aria-label': AD.i18n.t('sound.track') + ': ' + (T.name[AD.i18n.get()] || T.id),
+            'aria-current': AD.audio.currentTrack() === T.id ? 'true' : 'false',
+            onclick: function () {
+              AD.audio.setTrack(T.id);
+              trackBox.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-current', 'false'); });
+              b.setAttribute('aria-current', 'true');
+              var note = document.getElementById('audioNote');
+              if (note && AD.audio.isOn()) note.textContent = AD.audio.describe();
+            }
+          }, (T.name[AD.i18n.get()] || T.id));
+          return b;
+        }));
+      tools.splice(5, 0, soundBtn, trackBox);
     }
 
     return el('div', { class: 'hud' }, [mark, el('div', { class: 'hud__tools' }, tools)]);
@@ -170,6 +209,12 @@
       } else if (e.key === 'Escape' && AD.panel.isOpen()) {
         AD.panel.close();
       }
+    });
+
+    AD.i18n.onChange(function () {
+      var open = AD.panel.isOpen() ? AD.panel.current() : null;
+      AD.journey.relabel();
+      if (open) { AD.panel.close(true); AD.panel.open(open, null, true); }
     });
 
     AD.router.apply();

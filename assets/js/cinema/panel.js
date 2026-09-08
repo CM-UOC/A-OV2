@@ -21,12 +21,14 @@
     methodology: { title: 'Methodology', view: function () { return AD.views.methodology(); } },
     sources:     { title: 'Sources', view: function () { return AD.views.sources(); } },
     atlas:       { title: 'Places', view: function () { return AD.views.atlas(); } },
+    questions:   { title: 'Questions', wide: true, view: function (p) { return AD.views.questions(p); } },
     study:       { title: 'Study mode', wide: true, view: function (p) { return AD.views.study(p); } },
     menu:        { title: 'Deeper reading', view: function () { return menuView(); } }
   };
 
   AD.panelIndex = [
     { key: 'study', name: 'Study mode', note: 'The whole corpus in one place — every section, without leaving the journey' },
+    { key: 'questions', name: 'Difficult questions', note: 'What the text says, what it leaves open, and every position graded by evidence' },
     { key: 'index', name: 'All entries', note: '101 entries, filterable by book, theme, tradition, certainty, and source' },
     { key: 'atlas', name: 'Places', note: 'A schematic map of the locations named in the texts, linked to their scenes' },
     { key: 'mirror', name: 'Beginning & End', note: 'Genesis motifs paired with their counterparts in the new creation' },

@@ -25,6 +25,12 @@
     return { rays: 1, haze: 1, particles: 1 };
   }
 
+  function txt(scene, field) {
+    var T = D.sceneText && D.sceneText[scene.id];
+    if (T && T[field]) return AD.i18n.text(T[field]);
+    return scene[field] || '';
+  }
+
   function sceneNode(scene, i) {
     var stageEvents = scene.stage
       ? D.events.filter(function (e) { return e.stage === scene.stage; })
@@ -49,28 +55,25 @@
             class: 'bead bead--more', type: 'button', role: 'listitem',
             onclick: function () { AD.panel.open('index', { stage: scene.stage }); }
           }, [
-            el('span', { class: 'bead__n', text: 'ALL' }),
-            el('span', { class: 'bead__t', text: stageEvents.length + ' entries' }),
-            el('span', { class: 'bead__r', text: 'open the index' })
+            el('span', { class: 'bead__n', text: AD.i18n.t('scene.all') }),
+            el('span', { class: 'bead__t', text: stageEvents.length + ' ' + AD.i18n.t('scene.entries') }),
+            el('span', { class: 'bead__r', text: AD.i18n.t('scene.openIndex') })
           ])
         ]));
     }
 
     var caption = el('div', { class: 'scene__caption', style: '--in: 1' }, [
-      el('p', { class: 'scene__kicker', text: scene.kicker }),
-      scene.numeral ? el('p', { class: 'scene__numeral', text: 'Stage ' + scene.numeral }) : null,
-      el('h2', { class: 'scene__name', text: scene.name }),
-      el('p', { class: 'scene__line', text: scene.line }),
-      scene.quote ? el('blockquote', { class: 'scene__quote' }, [
-        el('p', { html: '&ldquo;' + scene.quote.text + '&rdquo;' }),
-        el('cite', { text: scene.quote.ref + ' · ' + scene.quote.translation })
-      ]) : null,
+      el('p', { class: 'scene__kicker', text: txt(scene, 'kicker') }),
+      scene.numeral ? el('p', { class: 'scene__numeral', text: AD.i18n.t('scene.stage') + ' ' + scene.numeral }) : null,
+      el('h2', { class: 'scene__name', text: txt(scene, 'name') }),
+      el('p', { class: 'scene__line', text: txt(scene, 'line') }),
+      sceneQuote(scene),
       beads,
       el('p', { class: 'scene__place' }, [
-        el('span', { text: scene.place }),
-        el('span', { class: 'scene__recon', title: 'Every environment on this site is generated at runtime. It is an artistic reconstruction, not a photograph and not a historical claim.' }, 'artistic reconstruction')
+        el('span', { text: txt(scene, 'place') }),
+        el('span', { class: 'scene__recon', title: 'Reconstrucción artística — no es una fotografía documental ni una afirmación histórica.' }, AD.i18n.t('scene.recon'))
       ]),
-      i === 0 ? el('p', { class: 'scene__cue' }, [el('i'), 'Scroll to travel']) : null
+      i === 0 ? el('p', { class: 'scene__cue' }, [el('i'), AD.i18n.t('scroll.cue')]) : null
     ]);
     caps.push(caption);
 
@@ -81,6 +84,17 @@
       class: 'scene', id: 'scene-' + scene.id, 'data-scene': scene.id, 'aria-label': scene.name
     }, [
       el('div', { class: 'scene__inner' }, [AD.glyph(scene.glyph), caption, hs])
+    ]);
+  }
+
+  function sceneQuote(scene) {
+    var T = D.sceneText && D.sceneText[scene.id];
+    if (!T || !T.quote) return null;
+    var lang = AD.i18n.get();
+    var tr = (D.bibleTranslations && D.bibleTranslations[lang]) || '';
+    return el('blockquote', { class: 'scene__quote' }, [
+      el('p', { text: AD.i18n.quote(AD.i18n.text(T.quote)) }),
+      el('cite', { text: AD.i18n.ref(T.qref) + ' · ' + tr })
     ]);
   }
 
@@ -199,6 +213,28 @@
     },
 
     setPaused: function (p) { paused = !!p; },
+
+    /* cambia el idioma sin mover el scroll ni recargar los planos */
+    relabel: function () {
+      var y = window.pageYOffset;
+      for (var i = 0; i < scenes.length; i++) {
+        var cap = caps[i], sc = scenes[i];
+        var k = cap.querySelector('.scene__kicker');   if (k) k.textContent = txt(sc, 'kicker');
+        var n = cap.querySelector('.scene__name');     if (n) n.textContent = txt(sc, 'name');
+        var l = cap.querySelector('.scene__line');     if (l) l.textContent = txt(sc, 'line');
+        var num = cap.querySelector('.scene__numeral');
+        if (num && sc.numeral) num.textContent = AD.i18n.t('scene.stage') + ' ' + sc.numeral;
+        var pl = cap.querySelector('.scene__place span:first-child');
+        if (pl) pl.textContent = txt(sc, 'place');
+        var rec = cap.querySelector('.scene__recon');  if (rec) rec.textContent = AD.i18n.t('scene.recon');
+        var q = cap.querySelector('.scene__quote');
+        if (q) { var nq = sceneQuote(sc); if (nq) q.parentNode.replaceChild(nq, q); }
+        var cue = cap.querySelector('.scene__cue');
+        if (cue && i === 0) { AD.util.clear(cue); cue.appendChild(el('i')); cue.appendChild(document.createTextNode(AD.i18n.t('scroll.cue'))); }
+      }
+      measure();
+      window.scrollTo(0, y);
+    },
 
     goto: function (index) {
       var n = nodes[index];

@@ -38,6 +38,10 @@
     { id: 'en72', col: 'st', label: 'Luminaries and their disorder', ref: '1 Enoch 72–82', comparative: true },
     { id: 'en85', col: 'st', label: 'Animal Apocalypse', ref: '1 Enoch 85–90', comparative: true },
     { id: 'en93', col: 'st', label: 'Apocalypse of Weeks', ref: '1 Enoch 93; 91', comparative: true },
+    { id: 'mac1', col: 'st', label: 'El altar de la desolación', ref: '1 Macabeos 1:54', deutero: true },
+    { id: 'mac2', col: 'st', label: 'Resurrección de los mártires', ref: '2 Macabeos 7:9–14', deutero: true },
+    { id: 'wis2', col: 'st', label: 'La muerte entró por envidia', ref: 'Sabiduría 2:23–24', deutero: true },
+    { id: 'sir44', col: 'st', label: 'Henoc fue trasladado', ref: 'Eclesiástico 44:16', deutero: true },
 
     { id: 'mark13', col: 'nt', label: 'The Olivet Discourse', ref: 'Mark 13' },
     { id: 'matt24', col: 'nt', label: 'Olivet, and the judgement', ref: 'Matthew 24–25' },
@@ -119,7 +123,14 @@
     { from: 'matt24', to: 'thess4', kind: 'shared-imagery', note: 'Trumpet, gathering, and clouds appear in both.' },
     { from: 'cor15', to: 'thess4', kind: 'shared-imagery', note: 'The trumpet, the dead raised, and the living changed.' },
     { from: 'dan7', to: 'thess2', kind: 'allusion', note: 'The self-exalting ruler of Daniel 7:25 and 11:36 shapes 2 Thessalonians 2:4.' },
-    { from: 'rev19', to: 'rev20', kind: 'shared-imagery', note: 'Whether chapter 20 follows chapter 19 in time is the pivot of the millennial debate.' }
+    { from: 'rev19', to: 'rev20', kind: 'shared-imagery', note: 'Whether chapter 20 follows chapter 19 in time is the pivot of the millennial debate.' },
+    { from: 'dan9', to: 'mac1', kind: 'allusion', note: '1 Macabeos 1:54 describe el altar erigido en 167 a.C. con la misma expresión que Daniel: es el referente histórico más citado para la abominación desoladora.' },
+    { from: 'mac1', to: 'matt24', kind: 'shared-imagery', note: 'Mateo reutiliza una fórmula que sus lectores ya asociaban al episodio macabeo.' },
+    { from: 'dan12', to: 'mac2', kind: 'shared-imagery', note: 'Ambos textos, del mismo siglo y la misma crisis, formulan la esperanza de resurrección de los mártires.' },
+    { from: 'mac2', to: 'john5', kind: 'shared-imagery', note: 'La resurrección de dos destinos aparece ya en la literatura del Segundo Templo antes de los evangelios.' },
+    { from: 'gen3', to: 'wis2', kind: 'allusion', note: 'Sabiduría 2:24 es la primera lectura conservada que identifica a la serpiente de Génesis con el diablo.' },
+    { from: 'wis2', to: 'rev13', kind: 'shared-imagery', note: 'La identificación que Sabiduría insinúa, Apocalipsis 12:9 la hace explícita.' },
+    { from: 'sir44', to: 'jude14', kind: 'shared-imagery', note: 'Eclesiástico y Judas atestiguan, por vías distintas, la vitalidad de la tradición henóquica.' }
   ];
 
   AD.data.mapColumns = [

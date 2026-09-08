@@ -4,6 +4,7 @@
   var el = AD.util.el, C = AD.components;
 
   var SECTIONS = [
+    { key: 'questions', label: 'Questions' },
     { key: 'index', label: 'All entries' },
     { key: 'mirror', label: 'Beginning & End' },
     { key: 'sequences', label: 'Contested order' },
@@ -20,6 +21,7 @@
   ];
 
   var VIEWS = {
+    questions: function (p) { return AD.views.questions(p); },
     index: function (p) { return AD.views.index(p); },
     mirror: function () { return AD.views.mirror(); },
     sequences: function () { return AD.views.sequences(); },
