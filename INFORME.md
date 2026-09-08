@@ -56,6 +56,23 @@ deuterocanónicos que faltaban: 1 Macabeos 1:54 (la abominación), 2 Macabeos 7 
 resurrección de los mártires), Sabiduría 2:24 (la primera identificación conservada
 de la serpiente con el diablo) y Eclesiástico 44:16 (Henoc). 56 nodos, 65 relaciones.
 
+Lo que decías de que solo se veía la mitad tenía tres causas distintas, todas
+corregidas. El panel del mapa era el estrecho, de 46 rem, y encima el inspector se
+ponía al lado en cuanto la *ventana* llegaba a 1000 px, sin mirar cuánto medía el
+panel: al círculo le quedaban unos 330 px. Quedaba además un `min-width: 720px`
+heredado del mapa rectangular anterior, que en pantalla estrecha sacaba el dibujo
+fuera del marco. Y los nombres de los tres grupos se dibujaban girados a R+46,
+justo encima de los rótulos de los nodos.
+
+Ahora el mapa abre en el panel ancho, el lienzo mide 720 unidades —una unidad por
+píxel a tamaño nominal, así que los cuerpos de letra del CSS se leen tal cual—, en
+el aro va la referencia y la frase descriptiva se lee entera en el inspector y en
+el tooltip, y los tres grupos son una leyenda horizontal en los cuatro idiomas.
+Comprobado en vivo a 1440, 1024, 768 y 390 px: el círculo entra completo en los
+tres primeros y por debajo de 560 px el marco se desplaza en horizontal en lugar
+de encoger la letra hasta lo ilegible. En ningún caso se corta ni desborda la
+página.
+
 **Liquid Glass.** Sistema de tres niveles con luz de canto y tinte tonal, con reservas
 para transparencia reducida, contraste alto y navegadores sin `backdrop-filter`.
 
