@@ -19,6 +19,8 @@
         { key: 'questions', name: { es: 'Preguntas difíciles', en: 'Difficult questions', de: 'Schwierige Fragen', fr: 'Questions difficiles' },
           note: { es: 'Lo que el texto deja abierto, con niveles de evidencia', en: 'What the text leaves open, graded by evidence',
                   de: 'Was der Text offenlässt, nach Belegstufen', fr: 'Ce que le texte laisse ouvert, par niveau de preuve' } },
+        { key: 'library', name: { es: 'Biblioteca visual', en: 'Visual library', de: 'Bildarchiv', fr: 'Bibliothèque visuelle' },
+          note: { es: '28 imágenes por acto y capítulo', en: '28 images by act and chapter', de: '28 Bilder nach Akt und Kapitel', fr: '28 images par acte et chapitre' } },
         { key: 'index', name: { es: 'Todas las fichas', en: 'All entries', de: 'Alle Einträge', fr: 'Toutes les fiches' },
           note: { es: '101 fichas con filtros', en: '101 entries with filters', de: '101 Einträge mit Filtern', fr: '101 fiches avec filtres' } },
         { key: 'study', name: { es: 'Modo estudio', en: 'Study mode', de: 'Studienmodus', fr: 'Mode étude' },

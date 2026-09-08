@@ -83,7 +83,7 @@
     return el('section', {
       class: 'scene', id: 'scene-' + scene.id, 'data-scene': scene.id, 'aria-label': scene.name
     }, [
-      el('div', { class: 'scene__inner' }, [AD.glyph(scene.glyph), caption, hs])
+      el('div', { class: 'scene__inner' }, [caption, hs])
     ]);
   }
 

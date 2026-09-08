@@ -1,201 +1,183 @@
-/* Sound design, synthesized in the browser — no audio files.
+/* Sonido celeste, sintetizado en el navegador. Sin archivos de audio.
 
-   Three layers per scene: a drone on the tonic, a slow pad that moves through a
-   chord progression, and a sparse bell motif that walks the scene's mode. Each
-   scene has its own root, mode, progression and tempo, so the music changes with
-   the chronology instead of holding one chord. Everything runs through a small
-   feedback-delay reverb for space, and a stereo panner tied to the camera.
+   La versión anterior sonaba áspera por causas concretas, todas corregidas:
+     · un detune de 2,002× que producía un batido inquieto → parciales armónicos exactos
+     · acordes con séptima y novena por defecto → tríadas consonantes y quintas abiertas
+     · una reverb de tres retardos con realimentación 0,70 → convolución con una cola
+       de 5,5 s generada, mucho más suave y sin peine metálico
+     · una campana con parcial 2,01× inarmónico → octava y quinta justas
+     · ataques de 12 ms → 4 s, para que nada entre de golpe
 
-   Silent until the listener asks for it. */
+   El control visible sólo ofrece encender, apagar y elegir banda sonora. */
 (function (AD) {
   'use strict';
 
-  var ctx = null, master = null, wet = null, started = false, on = false;
+  var ctx = null, master = null, verb = null, dry = null, wet = null;
+  var started = false, on = false;
+  var voices = [], sub = null, air = null;
+  var timer = null, nextAt = 0, step = 0, chordIdx = -1, scene = null;
 
-  /* Bandas sonoras: no son pistas grabadas sino caracteres del mismo motor.
-     El control visible sólo ofrece encender, apagar y elegir entre estas. */
   var TRACKS = [
-    { id: 'strings', gain: 1.00, wet: 0.56, cut: 1.00, bell: 1.00, air: 1.00, wave: 'sine',
-      name: { es: 'Cuerdas', en: 'Strings', de: 'Streicher', fr: 'Cordes' } },
-    { id: 'choral',  gain: 0.92, wet: 0.78, cut: 0.72, bell: 0.55, air: 1.60, wave: 'triangle',
-      name: { es: 'Coral',   en: 'Choral',  de: 'Choral',    fr: 'Choral' } },
-    { id: 'minimal', gain: 0.80, wet: 0.40, cut: 0.55, bell: 0.00, air: 0.55, wave: 'sine',
-      name: { es: 'Mínimo',  en: 'Minimal', de: 'Minimal',   fr: 'Minimal' } }
+    { id: 'choir',  name: { es: 'Coro',    en: 'Choir',   de: 'Chor',    fr: 'Chœur' },
+      wet: 0.62, gain: 1.00, air: 0.5, bell: 0.55, partials: [1, 2, 3, 4, 5, 6], tilt: 0.72 },
+    { id: 'waters', name: { es: 'Aguas',   en: 'Waters',  de: 'Wasser',  fr: 'Eaux' },
+      wet: 0.70, gain: 0.94, air: 1.5, bell: 0.30, partials: [1, 2, 3, 4], tilt: 0.55 },
+    { id: 'return', name: { es: 'Regreso', en: 'Homecoming', de: 'Heimkehr', fr: 'Retour' },
+      wet: 0.56, gain: 1.06, air: 0.7, bell: 0.75, partials: [1, 2, 3, 4, 5, 6, 8], tilt: 0.88 }
   ];
   var track = TRACKS[0];
-  var drone = [], pad = null, panner = null;
-  var timer = null, nextNote = 0, step = 0, chordIdx = 0;
-  var scene = null, target = null, blend = 0;
 
-  /* equal temperament from A4 */
-  function hz(semi) { return 440 * Math.pow(2, semi / 12); }
-
+  /* Modos consonantes. Ninguno con segunda menor sobre la tónica. */
   var MODE = {
-    aeolian:   [0, 2, 3, 5, 7, 8, 10],
-    dorian:    [0, 2, 3, 5, 7, 9, 10],
-    ionian:    [0, 2, 4, 5, 7, 9, 11],
-    lydian:    [0, 2, 4, 6, 7, 9, 11],
-    mixolydian:[0, 2, 4, 5, 7, 9, 10],
-    phrygian:  [0, 1, 3, 5, 7, 8, 10],
-    phrygdom:  [0, 1, 4, 5, 7, 8, 10],
-    wholetone: [0, 2, 4, 6, 8, 10, 12]
+    ionian:     [0, 2, 4, 5, 7, 9, 11],
+    aeolian:    [0, 2, 3, 5, 7, 8, 10],
+    dorian:     [0, 2, 3, 5, 7, 9, 10],
+    lydian:     [0, 2, 4, 6, 7, 9, 11],
+    mixolydian: [0, 2, 4, 5, 7, 9, 10]
   };
 
-  /* root is a semitone offset from A3 (-12). progression and motif are scale
-     degrees; the motif reads as a melody rather than a random walk. */
+  /* Progresiones por grados, todas por cuartas o terceras: reposo, no tensión. */
   var VOICE = {
-    prologue:    { root: -19, mode: 'aeolian',    prog: [0, 5, 3, 4],  motif: [0, 4, 7, 4],     bpm: 30, sparse: 0.72, oct: 2 },
-    origins:     { root: -21, mode: 'ionian',     prog: [1, 4, 0, 3],  motif: [0, 2, 4, 7],     bpm: 34, sparse: 0.58, oct: 2 },
-    foundations: { root: -19, mode: 'dorian',     prog: [0, 3, 6, 4],  motif: [0, 3, 5, 3],     bpm: 28, sparse: 0.76, oct: 2 },
-    signs:       { root: -14, mode: 'mixolydian', prog: [0, 3, 5, 1],  motif: [4, 2, 0, 2],     bpm: 36, sparse: 0.62, oct: 2 },
-    tribulation: { root: -17, mode: 'aeolian',    prog: [0, 5, 3, 4],  motif: [0, 3, 2, 0],     bpm: 32, sparse: 0.70, oct: 1 },
-    adversaries: { root: -17, mode: 'aeolian',    prog: [0, 4, 5, 3],  motif: [0, 2, 4, 2],     bpm: 26, sparse: 0.80, oct: 1 },
-    cosmos:      { root: -21, mode: 'lydian',     prog: [0, 4, 2, 5],  motif: [0, 4, 6, 4],     bpm: 24, sparse: 0.82, oct: 3 },
-    parousia:    { root: -16, mode: 'lydian',     prog: [0, 4, 1, 5],  motif: [0, 2, 4, 6],     bpm: 38, sparse: 0.50, oct: 3 },
-    judgement:   { root: -12, mode: 'aeolian',    prog: [0, 5, 3, 6],  motif: [7, 4, 2, 0],     bpm: 30, sparse: 0.68, oct: 2 },
-    restoration: { root: -14, mode: 'ionian',     prog: [0, 3, 5, 4],  motif: [0, 2, 4, 7],     bpm: 40, sparse: 0.52, oct: 3 },
-    coda:        { root: -19, mode: 'aeolian',    prog: [0, 5, 3, 4],  motif: [7, 4, 0, 4],     bpm: 26, sparse: 0.76, oct: 2 }
+    prologue:    { root: -22, mode: 'aeolian',    prog: [0, 5, 3, 4], bpm: 26, rest: 0.80 },
+    origins:     { root: -24, mode: 'ionian',     prog: [0, 3, 4, 0], bpm: 30, rest: 0.62 },
+    foundations: { root: -22, mode: 'dorian',     prog: [0, 3, 6, 4], bpm: 24, rest: 0.82 },
+    signs:       { root: -17, mode: 'mixolydian', prog: [0, 3, 4, 3], bpm: 30, rest: 0.70 },
+    tribulation: { root: -20, mode: 'aeolian',    prog: [0, 5, 3, 5], bpm: 26, rest: 0.78 },
+    adversaries: { root: -20, mode: 'aeolian',    prog: [0, 4, 5, 4], bpm: 22, rest: 0.86 },
+    cosmos:      { root: -24, mode: 'lydian',     prog: [0, 4, 3, 4], bpm: 20, rest: 0.88 },
+    parousia:    { root: -19, mode: 'lydian',     prog: [0, 4, 3, 0], bpm: 32, rest: 0.52 },
+    judgement:   { root: -15, mode: 'aeolian',    prog: [0, 5, 3, 4], bpm: 24, rest: 0.76 },
+    restoration: { root: -17, mode: 'ionian',     prog: [0, 3, 4, 0], bpm: 34, rest: 0.50 },
+    coda:        { root: -22, mode: 'aeolian',    prog: [0, 5, 3, 4], bpm: 22, rest: 0.82 }
   };
 
+  function hz(s) { return 440 * Math.pow(2, s / 12); }
   function degree(v, d) {
     var m = MODE[v.mode], n = m.length;
     var oct = Math.floor(d / n), i = ((d % n) + n) % n;
     return v.root + m[i] + oct * 12;
   }
 
-  /* --- graph ---------------------------------------------------------- */
+  /* Cola de reverb generada: ruido con decaimiento exponencial y un filtro
+     suave, que es lo que da la sensación de nave o de espacio abierto. */
+  function impulse(seconds, decay) {
+    var n = Math.floor(ctx.sampleRate * seconds);
+    var buf = ctx.createBuffer(2, n, ctx.sampleRate);
+    for (var c = 0; c < 2; c++) {
+      var d = buf.getChannelData(c), last = 0;
+      for (var i = 0; i < n; i++) {
+        var t = i / n;
+        var white = Math.random() * 2 - 1;
+        last = last * 0.72 + white * 0.28;           /* paso bajo: quita la aspereza */
+        d[i] = last * Math.pow(1 - t, decay) * (1 - t * 0.15);
+      }
+    }
+    return buf;
+  }
+
   function build() {
     var AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return false;
     ctx = new AC();
 
-    master = ctx.createGain();
-    master.gain.value = 0;
-    master.connect(ctx.destination);
+    master = ctx.createGain(); master.gain.value = 0;
+    var soft = ctx.createBiquadFilter();
+    soft.type = 'lowpass'; soft.frequency.value = 3200; soft.Q.value = 0.4;
+    master.connect(soft); soft.connect(ctx.destination);
 
-    /* a small feedback-delay reverb: three prime-ish delays through a lowpass */
+    verb = ctx.createConvolver();
+    verb.buffer = impulse(5.5, 2.6);
     wet = ctx.createGain(); wet.gain.value = track.wet;
-    var damp = ctx.createBiquadFilter();
-    damp.type = 'lowpass'; damp.frequency.value = 1500;
-    [0.137, 0.211, 0.313].forEach(function (d) {
-      var dl = ctx.createDelay(1.0); dl.delayTime.value = d;
-      var fb = ctx.createGain(); fb.gain.value = 0.70;
-      wet.connect(dl); dl.connect(fb); fb.connect(damp); damp.connect(dl);
-      dl.connect(master);
-    });
-    wet.connect(master);
+    dry = ctx.createGain(); dry.gain.value = 0.72;
+    verb.connect(wet); wet.connect(master); dry.connect(master);
 
-    panner = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
-    if (panner) { panner.connect(master); panner.connect(wet); }
+    /* Pad coral: parciales armónicos exactos con un vibrato lentísimo.
+       Sin detunes fraccionarios: son los que producían el batido. */
+    var lfo = ctx.createOscillator(), lfoGain = ctx.createGain();
+    lfo.frequency.value = 0.13; lfoGain.gain.value = 1.6;
+    lfo.connect(lfoGain); lfo.start();
 
-    /* drone: two detuned oscillators plus a sub */
-    [[1, 'sine', 0.38], [2.002, 'sine', 0.10], [0.5, 'sine', 0.26]].forEach(function (v) {
-      var o = ctx.createOscillator(), g = ctx.createGain(), f = ctx.createBiquadFilter();
-      o.type = v[1]; o.frequency.value = 110 * v[0];
-      f.type = 'lowpass'; f.frequency.value = 620;
-      g.gain.value = v[2];
-      o.connect(f); f.connect(g); g.connect(master); g.connect(wet);
-      o.start();
-      drone.push({ osc: o, gain: g, filt: f, mult: v[0] });
-    });
-
-    /* pad: four voices holding a chord, retuned on each change */
-    pad = [];
     for (var i = 0; i < 4; i++) {
       var o = ctx.createOscillator(), g = ctx.createGain(), f = ctx.createBiquadFilter();
-      o.type = i === 3 ? 'triangle' : 'sine';
-      o.frequency.value = 220;
-      f.type = 'lowpass'; f.frequency.value = 1400;
+      o.type = 'sine'; o.frequency.value = 220;
+      f.type = 'lowpass'; f.frequency.value = 1400; f.Q.value = 0.3;
       g.gain.value = 0;
-      o.connect(f); f.connect(g); g.connect(master); g.connect(wet);
+      lfoGain.connect(o.detune);
+      o.connect(f); f.connect(g); g.connect(dry); g.connect(verb);
       o.start();
-      pad.push({ osc: o, gain: g, filt: f });
+      voices.push({ osc: o, gain: g, filt: f, parts: [] });
     }
 
-    /* air */
-    var len = ctx.sampleRate * 3;
-    var buf = ctx.createBuffer(1, len, ctx.sampleRate);
-    var d = buf.getChannelData(0);
-    for (var k = 0; k < len; k++) d[k] = (Math.random() * 2 - 1) * 0.4;
-    var src = ctx.createBufferSource(); src.buffer = buf; src.loop = true;
-    var lp = ctx.createBiquadFilter(); lp.type = 'bandpass'; lp.frequency.value = 520; lp.Q.value = 0.5;
-    var ng = ctx.createGain(); ng.gain.value = 0.022;
-    src.connect(lp); lp.connect(ng); ng.connect(master);
+    sub = ctx.createGain(); sub.gain.value = 0;
+    var so = ctx.createOscillator(); so.type = 'sine'; so.frequency.value = 55;
+    so.connect(sub); sub.connect(dry); sub.connect(verb); so.start();
+    AD.audio._subOsc = so;
+
+    /* Aire: ruido muy filtrado, apenas audible, para que no suene estéril */
+    var len = ctx.sampleRate * 4;
+    var nb = ctx.createBuffer(1, len, ctx.sampleRate);
+    var nd = nb.getChannelData(0), lastn = 0;
+    for (var k = 0; k < len; k++) { lastn = lastn * 0.94 + (Math.random() * 2 - 1) * 0.06; nd[k] = lastn; }
+    var src = ctx.createBufferSource(); src.buffer = nb; src.loop = true;
+    var nf = ctx.createBiquadFilter(); nf.type = 'lowpass'; nf.frequency.value = 700;
+    air = ctx.createGain(); air.gain.value = 0.012;
+    src.connect(nf); nf.connect(air); air.connect(verb);
     src.start();
-    AD.audio._noise = ng;
 
     started = true;
     return true;
   }
 
-  /* --- bell voice ------------------------------------------------------ */
-  function pluck(freq, when, gain, panPos) {
-    var o = ctx.createOscillator(), o2 = ctx.createOscillator();
-    var g = ctx.createGain(), g2 = ctx.createGain();
-    o.type = 'sine'; o.frequency.value = freq;
-    o2.type = 'sine'; o2.frequency.value = freq * 2.01;
-    g.gain.setValueAtTime(0.0001, when);
-    g.gain.exponentialRampToValueAtTime(gain, when + 0.28);
-    g.gain.exponentialRampToValueAtTime(0.0001, when + 4.2);
-    g2.gain.setValueAtTime(0.0001, when);
-    g2.gain.exponentialRampToValueAtTime(gain * 0.16, when + 0.22);
-    g2.gain.exponentialRampToValueAtTime(0.0001, when + 2.0);
-    o.connect(g); o2.connect(g2);
-    var dest = panner || master;
-    if (panner) panner.pan.setTargetAtTime(panPos, when, 0.3);
-    g.connect(dest); g2.connect(dest);
-    if (!panner) { g.connect(wet); g2.connect(wet); }
-    o.start(when); o2.start(when);
-    o.stop(when + 4.4); o2.stop(when + 2.2);
+  /* Campana armónica: fundamental, octava y quinta. Nada inarmónico. */
+  function chime(freq, when, gain) {
+    [[1, gain], [2, gain * 0.34], [3, gain * 0.14]].forEach(function (p) {
+      var o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'sine'; o.frequency.value = freq * p[0];
+      g.gain.setValueAtTime(0.0001, when);
+      g.gain.exponentialRampToValueAtTime(Math.max(p[1], 0.0002), when + 0.9);
+      g.gain.exponentialRampToValueAtTime(0.0001, when + 7.5);
+      o.connect(g); g.connect(dry); g.connect(verb);
+      o.start(when); o.stop(when + 8);
+    });
   }
 
-  /* --- scheduler -------------------------------------------------------- */
+  function setChord(v, rootDeg, when) {
+    /* tríada abierta: fundamental, quinta, tercera una octava arriba, y la
+       fundamental doblada. Consonante y sin roces. */
+    var degs = [0, 4, 2 + 7, 0 + 7];
+    for (var i = 0; i < voices.length; i++) {
+      var f = hz(degree(v, rootDeg + degs[i]) + 12);
+      voices[i].osc.frequency.setTargetAtTime(f, when, 2.2);
+      voices[i].gain.gain.setTargetAtTime(0.040 * [1, 0.8, 0.62, 0.5][i], when, 3.4);
+    }
+    if (AD.audio._subOsc) AD.audio._subOsc.frequency.setTargetAtTime(hz(degree(v, rootDeg) - 12), when, 3.0);
+    sub.gain.setTargetAtTime(0.055, when, 3.0);
+  }
+
   function schedule() {
     if (!on || !scene) return;
     var v = VOICE[scene] || VOICE.prologue;
     var beat = 60 / v.bpm;
-    var horizon = ctx.currentTime + 0.6;
-    while (nextNote < horizon) {
-      var when = Math.max(nextNote, ctx.currentTime + 0.02);
-
-      /* chord change every four beats */
-      if (step % 4 === 0) {
+    while (nextAt < ctx.currentTime + 1.2) {
+      var when = Math.max(nextAt, ctx.currentTime + 0.05);
+      if (step % 8 === 0) {
         chordIdx = (chordIdx + 1) % v.prog.length;
         setChord(v, v.prog[chordIdx], when);
       }
-
-      /* the motif, with rests so it breathes */
-      if (track.bell > 0 && Math.random() > (1 - (1 - v.sparse) * track.bell)) {
-        var d = v.motif[step % v.motif.length] + v.prog[chordIdx];
-        var f = hz(degree(v, d) + v.oct * 12);
-        pluck(f, when, 0.026 + Math.random() * 0.016, (Math.random() - 0.5) * 0.6);
-        if (Math.random() > 0.85) {
-          pluck(hz(degree(v, d + 2) + v.oct * 12), when + beat * 0.75, 0.014, (Math.random() - 0.5) * 0.8);
-        }
+      if (track.bell > 0 && Math.random() > v.rest) {
+        var d = v.prog[chordIdx] + [0, 2, 4, 7][Math.floor(Math.random() * 4)];
+        chime(hz(degree(v, d) + 24), when, 0.020 * track.bell);
       }
-
-      nextNote += beat;
+      nextAt += beat * 2;
       step++;
-    }
-  }
-
-  function setChord(v, rootDeg, when) {
-    if (!pad) return;
-    /* quartal-ish voicing: root, third, fifth, ninth of the mode */
-    var degs = [0, 2, 4, 6];
-    for (var i = 0; i < pad.length; i++) {
-      var f = hz(degree(v, rootDeg + degs[i]) + 12);
-      pad[i].osc.frequency.setTargetAtTime(f, when, 0.9);
-      pad[i].gain.gain.setTargetAtTime(0.040 - i * 0.006, when, 2.4);
-    }
-    for (var k = 0; k < drone.length; k++) {
-      drone[k].osc.frequency.setTargetAtTime(hz(degree(v, rootDeg) - 12) * drone[k].mult, when, 1.6);
     }
   }
 
   AD.audio = {
     available: function () { return !!(window.AudioContext || window.webkitAudioContext); },
     isOn: function () { return on; },
+    tracks: function () { return TRACKS; },
+    currentTrack: function () { return track.id; },
 
     toggle: function () {
       if (!started && !build()) return false;
@@ -204,63 +186,52 @@
       var t = ctx.currentTime;
       master.gain.cancelScheduledValues(t);
       master.gain.setValueAtTime(master.gain.value, t);
-      master.gain.linearRampToValueAtTime(on ? 0.115 * track.gain : 0, t + (on ? 3.0 : 1.1));
+      /* entrada de 6 s: nada aparece de golpe */
+      master.gain.linearRampToValueAtTime(on ? 0.13 * track.gain : 0, t + (on ? 6.0 : 2.2));
       if (on) {
-        nextNote = ctx.currentTime + 0.25;
-        step = 0; chordIdx = -1;
+        nextAt = ctx.currentTime + 0.4; step = 0; chordIdx = -1;
         if (timer) clearInterval(timer);
-        timer = setInterval(schedule, 120);
+        timer = setInterval(schedule, 220);
         schedule();
       } else if (timer) { clearInterval(timer); timer = null; }
       return on;
     },
 
-    /* follow the journey */
-    setScene: function (id, brightness, pan) {
-      if (!started) { scene = id; return; }
-      if (id !== scene) {
-        scene = id;
-        step = 0;
-        chordIdx = -1;
-      }
-      if (!on) return;
-      var t = ctx.currentTime;
-      var cut = (620 + brightness * 2400) * track.cut;
-      drone.forEach(function (d) { d.filt.frequency.setTargetAtTime(cut, t, 1.5); });
-      pad.forEach(function (p) { p.filt.frequency.setTargetAtTime(cut * 1.6, t, 1.5); });
-      if (AD.audio._noise) AD.audio._noise.gain.setTargetAtTime((0.018 + brightness * 0.05) * track.air, t, 1.5);
-      if (panner) panner.pan.setTargetAtTime(Math.max(-0.8, Math.min(0.8, pan || 0)), t, 0.8);
-    },
-
-    chime: function (up) {
-      if (!started || !on) return;
-      var v = VOICE[scene] || VOICE.prologue;
-      var t = ctx.currentTime + 0.01;
-      pluck(hz(degree(v, up ? 4 : 2) + 24), t, 0.026, 0);
-      pluck(hz(degree(v, up ? 7 : 4) + 24), t + 0.14, 0.016, 0.2);
-    },
-
-    tracks: function () { return TRACKS; },
-    currentTrack: function () { return track.id; },
     setTrack: function (id) {
       var t2 = TRACKS.filter(function (x) { return x.id === id; })[0];
       if (!t2) return;
       track = t2;
       if (!started || !on) return;
       var now = ctx.currentTime;
-      master.gain.setTargetAtTime(0.115 * track.gain, now, 1.2);
-      wet.gain.setTargetAtTime(track.wet, now, 1.2);
-      pad.forEach(function (p) { p.osc.type = track.wave === 'triangle' ? 'triangle' : 'sine'; });
+      master.gain.setTargetAtTime(0.13 * track.gain, now, 2.0);
+      wet.gain.setTargetAtTime(track.wet, now, 2.0);
+      air.gain.setTargetAtTime(0.012 * track.air, now, 2.0);
+      voices.forEach(function (v) { v.filt.frequency.setTargetAtTime(900 + track.tilt * 1600, now, 2.0); });
     },
 
-    /* an accessible description of what is playing */
+    setScene: function (id, brightness, pan) {
+      if (id !== scene) { scene = id; step = 0; chordIdx = -1; }
+      if (!started || !on) return;
+      var t = ctx.currentTime;
+      var cut = (760 + brightness * 1500) * (0.6 + track.tilt * 0.6);
+      voices.forEach(function (v) { v.filt.frequency.setTargetAtTime(cut, t, 3.0); });
+      if (air) air.gain.setTargetAtTime((0.008 + brightness * 0.018) * track.air, t, 3.0);
+    },
+
+    chime: function () {
+      if (!started || !on) return;
+      var v = VOICE[scene] || VOICE.prologue;
+      chime(hz(degree(v, 4) + 24), ctx.currentTime + 0.02, 0.016);
+    },
+
     describe: function () {
       var v = VOICE[scene] || VOICE.prologue;
-      if (!on) return 'Ambient sound is off.';
       var n = track.name[AD.i18n ? AD.i18n.get() : 'en'] || track.id;
-      return 'Ambient sound (' + n + '): a low drone and a slow ' + v.mode + ' chord progression' +
-        (track.bell > 0 ? ', with an occasional soft bell' : '') +
-        ', at about ' + v.bpm + ' beats per minute. No speech.';
+      return { es: 'Sonido ambiente (' + n + '): un pad coral sostenido sobre una nota grave, con acordes consonantes que cambian muy despacio y alguna campana lejana. Sin voz.',
+               en: 'Ambient sound (' + n + '): a sustained choral pad over a low drone, with consonant chords changing very slowly and an occasional distant bell. No speech.',
+               de: 'Klangbild (' + n + '): ein getragener Chorteppich über einem tiefen Ton, mit sehr langsam wechselnden konsonanten Akkorden und gelegentlicher ferner Glocke. Keine Sprache.',
+               fr: 'Ambiance sonore (' + n + ') : une nappe chorale tenue sur une basse, avec des accords consonants très lents et une cloche lointaine occasionnelle. Sans parole.'
+             }[AD.i18n ? AD.i18n.get() : 'en'];
     }
   };
 })(window.AD);

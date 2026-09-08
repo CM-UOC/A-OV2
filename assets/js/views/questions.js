@@ -18,6 +18,22 @@
     ]);
   }
 
+  function imageFor(q, positionKey) {
+    if (!q.images) return null;
+    var found = q.images.filter(function (x) { return x.position === positionKey; })[0];
+    if (!found) return null;
+    var a = D.libraryById[found.id];
+    if (!a) return null;
+    return el('figure', { class: 'qfig' }, [
+      el('img', { src: D.libraryBase + a.file + '.jpg', alt: a.alt, loading: 'lazy', decoding: 'async' }),
+      el('figcaption', {}, [
+        el('span', { class: 'qfig__id', text: a.id }),
+        el('span', { class: 'qfig__t', text: a.title }),
+        a.warning ? el('span', { class: 'qfig__w', text: a.warning }) : null
+      ])
+    ]);
+  }
+
   AD.views.questions = function (params) {
     var list = el('div', { class: 'q-list' });
 
@@ -68,6 +84,9 @@
         })));
       }
 
+      var lead = imageFor(q, null);
+      if (lead) out.push(lead);
+
       out.push(el('div', { class: 'split' }, [
         el('div', { class: 'slab slab--text' }, [
           el('p', { class: 'slab__label' }, [I.t('q.textSays')]),
@@ -101,7 +120,8 @@
               el('p', { class: 'pos__lab pos__lab--against', text: I.t('q.objections') }),
               el('p', { text: I.text(p.objs) })
             ])
-          ])
+          ]),
+          imageFor(q, p.key)
         ]);
       })));
 

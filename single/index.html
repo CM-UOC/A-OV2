@@ -1115,7 +1115,14 @@ body { background: #05070E; }
   --glass-edge: rgba(255, 255, 255, 0.22);
   --glass-edge-lo: rgba(255, 255, 255, 0.06);
   --glass-shadow: 0 18px 46px -22px rgba(0, 0, 0, 0.75);
-  --glass-radius: 14px;
+  /* escala de radios: cada tamaño de superficie tiene el suyo, y las
+     superficies anidadas siempre llevan uno menor que su contenedor */
+  --r-xs: 6px;
+  --r-sm: 9px;
+  --r-md: 13px;
+  --r-lg: 18px;
+  --r-xl: 24px;
+  --glass-radius: var(--r-lg);
 }
 :root[data-theme="light"], :root:not([data-theme="dark"]) {
   --glass-tint: rgba(255, 255, 255, 0.10);
@@ -1204,7 +1211,7 @@ body { background: #05070E; }
 .q__passages { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: var(--sp-4); }
 .passage-btn {
   display: grid; gap: 0.15rem; text-align: left;
-  padding: 0.5rem 0.75rem; border-radius: 8px;
+  padding: 0.55rem 0.8rem; border-radius: var(--r-sm);
   border: 1px solid var(--accent-line); background: var(--accent-soft);
 }
 .passage-btn:hover { border-color: var(--accent); }
@@ -1223,7 +1230,7 @@ body { background: #05070E; }
 .qblock--deduce .qblock__label { color: var(--cert-anchored); }
 .qblock--purpose .qblock__label { color: var(--st-parousia-ink); }
 .qblock--open {
-  border: 1px dashed var(--line); border-radius: 8px; padding: var(--sp-4);
+  border: 1px dashed var(--line); border-radius: var(--r-md); padding: var(--sp-4);
   background: var(--surface-2);
 }
 .q__sources { margin: 0; padding-left: 1.1rem; color: var(--muted); font-size: var(--t-xs); }
@@ -1231,11 +1238,11 @@ body { background: #05070E; }
 
 /* posturas */
 .pos-list { display: grid; gap: var(--sp-3); }
-.pos { border: 1px solid var(--line); border-radius: 10px; padding: var(--sp-4); background: var(--surface-2); }
+.pos { border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--sp-4); background: var(--surface-2); }
 .pos__head { display: flex; align-items: baseline; gap: 0.6rem; flex-wrap: wrap; }
 .pos__key {
   font-family: var(--f-mono); font-size: 0.6875rem; color: var(--accent-ink);
-  border: 1px solid var(--accent-line); border-radius: 4px; padding: 0.05rem 0.35rem;
+  border: 1px solid var(--accent-line); border-radius: var(--r-xs); padding: 0.05rem 0.35rem;
 }
 .pos__head h4 { font-family: var(--f-display); font-size: 1.08rem; font-weight: 700; }
 .pos__sum { color: var(--ink-2); font-size: var(--t-sm); margin-top: var(--sp-2); }
@@ -1253,7 +1260,7 @@ body { background: #05070E; }
 .ev {
   display: inline-flex; align-items: center; gap: 0.3rem;
   font-family: var(--f-mono); font-size: 0.5625rem; letter-spacing: 0.1em;
-  padding: 0.12rem 0.4rem; border-radius: 3px;
+  padding: 0.12rem 0.4rem; border-radius: var(--r-xs);
   border: 1px solid currentColor; white-space: nowrap; cursor: help;
 }
 .ev__dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
@@ -1277,7 +1284,7 @@ body { background: #05070E; }
 .pv.is-open .pv__panel { transform: none; opacity: 1; }
 .pv__close {
   position: absolute; top: var(--sp-3); right: var(--sp-3);
-  width: 30px; height: 30px; border-radius: 50%;
+  width: 32px; height: 32px; border-radius: 50%;
   border: 1px solid var(--line); color: var(--ink-2); background: var(--surface-2);
 }
 .pv__close:hover { border-color: var(--accent); color: var(--ink); }
@@ -1316,8 +1323,20 @@ body { background: #05070E; }
 /* ============================================================
    Mapa radial de conexiones
    ============================================================ */
-.chord-svg { display: block; width: 100%; height: auto; min-width: 0; }
-.map-frame { padding: var(--sp-3); overflow: hidden; }
+.map-frame {
+  padding: var(--sp-4);
+  display: grid; place-items: center;
+  overflow: visible;              /* recortaba el círculo por abajo */
+}
+/* el diagrama es cuadrado: se dimensiona por altura para que quepa entero */
+.chord-svg {
+  display: block; margin: 0 auto;
+  height: min(72vh, 720px);
+  width: auto; max-width: 100%;
+}
+@media (max-width: 900px) {
+  .chord-svg { height: auto; width: 100%; max-height: 68vh; }
+}
 
 .chord {
   fill: none; stroke-width: 1; opacity: 0.30;
@@ -1379,6 +1398,77 @@ body { background: #05070E; }
 @media (prefers-reduced-transparency: reduce) { .drawer { backdrop-filter: none; -webkit-backdrop-filter: none; } }
 
 /* ============================================================
+   Biblioteca visual
+   ============================================================ */
+.lib__act { margin-top: var(--sp-7); }
+.lib__acthead {
+  display: flex; align-items: baseline; gap: 0.8rem;
+  padding-bottom: var(--sp-3); margin-bottom: var(--sp-4);
+  border-bottom: 1px solid var(--line);
+}
+.lib__actnum {
+  font-family: var(--f-mono); font-size: 0.625rem; letter-spacing: 0.2em;
+  color: var(--accent-ink); border: 1px solid var(--accent-line);
+  border-radius: var(--r-xs); padding: 0.1rem 0.4rem;
+}
+.lib__acthead h2 { font-family: var(--f-display); font-size: 1.4rem; }
+.lib__count { margin-left: auto; font-family: var(--f-mono); font-size: 0.625rem; color: var(--muted-2); }
+
+.lib__fig { position: relative; margin: 0 0 var(--sp-5); }
+.lib__frame {
+  position: relative; overflow: hidden; border-radius: var(--r-lg);
+  aspect-ratio: 16 / 9; background: var(--surface-2);
+  box-shadow: 0 20px 48px -28px rgba(0,0,0,.6);
+}
+.lib__frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.lib__fig[data-role="hero"] .lib__frame { aspect-ratio: 21 / 9; }
+
+.lib__cap {
+  position: relative; margin: -3.6rem 0 0 var(--sp-4);
+  width: min(30rem, calc(100% - 2 * var(--sp-4)));
+  padding: var(--sp-4); border-radius: var(--r-md);
+  background: var(--surface);
+}
+@media (max-width: 700px) {
+  .lib__cap { margin: -1.6rem auto 0; width: calc(100% - 1.6rem); }
+}
+.lib__role {
+  font-family: var(--f-mono); font-size: 0.5625rem; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--muted-2);
+  display: flex; justify-content: space-between; gap: 0.6rem;
+}
+.lib__id { color: var(--accent-ink); }
+.lib__title { font-family: var(--f-display); font-size: 1.2rem; margin: 0.35rem 0; }
+.lib__desc { font-size: var(--t-sm); color: var(--ink-2); }
+.lib__meta { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: var(--sp-3); align-items: center; }
+.lib__ref { cursor: pointer; }
+.lib__ref:hover { border-color: var(--accent); color: var(--accent-ink); }
+.lib__warn {
+  margin-top: var(--sp-3); padding-top: var(--sp-3);
+  border-top: 1px dashed var(--line);
+  font-size: var(--t-xs); color: var(--muted); line-height: 1.45;
+}
+
+/* imagen dentro de una pregunta difícil */
+.qfig { margin: var(--sp-4) 0 0; }
+.qfig img {
+  width: 100%; border-radius: var(--r-md); display: block;
+  aspect-ratio: 16 / 9; object-fit: cover;
+}
+.qfig figcaption {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem;
+  margin-top: 0.5rem; font-size: var(--t-xs); color: var(--muted);
+}
+.qfig__id { font-family: var(--f-mono); font-size: 0.5625rem; color: var(--accent-ink); }
+.qfig__t { color: var(--ink-2); font-weight: 600; }
+.qfig__w { flex-basis: 100%; line-height: 1.45; font-style: italic; }
+.pos .qfig img { aspect-ratio: 21 / 9; }
+
+/* el rótulo va donde el manifiesto declara zona segura */
+.lib__fig[data-safe^="right"] .lib__cap { margin-left: auto; margin-right: var(--sp-4); }
+@media (max-width: 700px) { .lib__fig[data-safe^="right"] .lib__cap { margin-right: auto; } }
+
+/* ============================================================
    Cromo reconstruido: tres controles, una hoja de exploración y
    un desplegable de ajustes. Orden de capas corregido para que el
    HUD siga siendo utilizable con un panel abierto.
@@ -1413,13 +1503,13 @@ body { background: #05070E; }
 }
 .hud__mark b { font-size: 1.02rem; }
 .hud__tools {
-  display: flex; align-items: center; gap: 4px;
-  padding: 5px; border-radius: 13px;
+  display: flex; align-items: center; gap: 3px;
+  padding: 4px; border-radius: var(--r-md);
 }
 
 .ctl {
   display: inline-flex; align-items: center; gap: 0.45rem;
-  height: 34px; padding: 0 0.7rem; border-radius: 9px;
+  height: 34px; padding: 0 0.8rem; border-radius: var(--r-sm);
   border: 1px solid transparent; background: transparent;
   color: var(--hud-ink);
   font-family: var(--f-mono); font-size: 0.625rem; letter-spacing: 0.12em;
@@ -1471,7 +1561,7 @@ body { background: #05070E; }
 }
 .sheet__item {
   display: grid; gap: 0.2rem; width: 100%; text-align: left;
-  padding: 0.7rem 0.85rem; border-radius: 10px; margin-bottom: 3px;
+  padding: 0.75rem 0.9rem; border-radius: var(--r-md); margin-bottom: 2px;
   border: 1px solid transparent;
   opacity: 0; translate: 0 8px;
   transition: background 0.2s ease, border-color 0.2s ease;
@@ -1490,7 +1580,7 @@ body { background: #05070E; }
 }
 .sheet__stage {
   display: inline-flex; align-items: center; gap: 0.4rem;
-  padding: 0.34rem 0.55rem; border-radius: 8px;
+  padding: 0.36rem 0.6rem; border-radius: var(--r-sm);
   border: 1px solid var(--line-soft); background: var(--surface-2);
   font-size: var(--t-xs); color: var(--ink-2);
 }
@@ -1519,10 +1609,10 @@ body { background: #05070E; }
 }
 .seg {
   display: flex; gap: 2px; padding: 3px;
-  background: var(--surface-2); border: 1px solid var(--line-soft); border-radius: 9px;
+  background: var(--surface-2); border: 1px solid var(--line-soft); border-radius: var(--r-md);
 }
 .seg button {
-  flex: 1; padding: 0.34rem 0.3rem; border-radius: 6px;
+  flex: 1; padding: 0.4rem 0.3rem; border-radius: var(--r-sm);
   font-family: var(--f-mono); font-size: 0.5625rem; letter-spacing: 0.06em;
   color: var(--muted); white-space: nowrap;
   transition: background 0.2s ease, color 0.2s ease;
@@ -1531,6 +1621,47 @@ body { background: #05070E; }
 .seg button[aria-current="true"] { background: var(--accent-soft); color: var(--accent-ink); font-weight: 600; }
 @media (prefers-reduced-motion: reduce) {
   .prefs { transition: none; opacity: 1; translate: 0 0; scale: 1; }
+}
+
+/* --- sin iconografía: los controles son sólo palabra ------------------ */
+.ctl__label { display: inline !important; }
+.ctl { min-width: 0; }
+@media (max-width: 640px) {
+  .ctl { width: auto; padding: 0 0.62rem; }
+  .ctl__label { font-size: 0.5625rem; }
+}
+
+/* --- menús emergentes: más aire y jerarquía -------------------------- */
+.sheet__panel { border-radius: var(--r-xl); }
+.sheet__cols { gap: clamp(1.4rem, 3vw, 2.6rem); }
+.sheet__gtitle {
+  padding-bottom: 0.55rem; margin-bottom: 0.65rem;
+  border-bottom: 1px solid var(--line-soft);
+}
+.sheet__item {
+  position: relative;
+  transition: background 0.22s ease, border-color 0.22s ease, translate 0.22s cubic-bezier(.2,.7,.3,1);
+}
+.sheet__item:hover, .sheet__item:focus-visible { translate: 3px 0; }
+.sheet__item::after {
+  content: "→"; position: absolute; right: 0.85rem; top: 0.78rem;
+  color: var(--accent-ink); opacity: 0; translate: -6px 0;
+  transition: opacity 0.22s ease, translate 0.22s ease;
+  font-family: var(--f-mono); font-size: 0.8rem;
+}
+.sheet__item:hover::after, .sheet__item:focus-visible::after { opacity: 1; translate: 0 0; }
+.sheet__name { line-height: 1.25; }
+.sheet__note { margin-top: 0.1rem; }
+.sheet__stages { gap: 5px; margin-top: 0.2rem; }
+
+.prefs { width: min(22rem, calc(100vw - 24px)); border-radius: var(--r-lg); padding: var(--sp-5); gap: var(--sp-4); }
+.prefs__row { gap: 0.5rem; }
+.prefs__label { letter-spacing: 0.2em; }
+.seg button { transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease; }
+.seg button[aria-current="true"] { box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+@media (prefers-reduced-motion: reduce) {
+  .sheet__item, .sheet__item::after, .seg button { transition: none; }
+  .sheet__item:hover { translate: 0 0; }
 }
 
 </style>
@@ -5202,6 +5333,917 @@ body { background: #05070E; }
   AD.data.passageCount = Object.keys(AD.data.passages).length;
 })(window.AD);
 
+/* Biblioteca visual de A-OV2 (lotes 1 y 2).
+
+   28 imágenes generadas para el proyecto. Los metadatos vienen del manifiesto
+   de la entrega y se integran en el sistema de evidencia del sitio: las
+   categorías A-H del proveedor se asignan a los 14 niveles ya existentes, de
+   modo que no hay dos arquitecturas de contenido compitiendo.
+
+   Originales sin tocar en media/originals/ (WebP 1672x941).
+   Producción en media/library/ (JPEG 1280 px) y media/thumbs/ (400 px).
+
+   Resolución pendiente: los maestros nativos miden 1672x941 y no alcanzan el
+   mínimo de produccion de 2560x1440 que pedia el encargo. Queda registrado.  */
+(function (AD) {
+  'use strict';
+
+  AD.data.libraryActNames = {
+ "I": {
+  "es": "Creación y comunión",
+  "en": "Creation and communion",
+  "de": "Schöpfung und Gemeinschaft",
+  "fr": "Création et communion"
+ },
+ "II": {
+  "es": "Separación",
+  "en": "Separation",
+  "de": "Trennung",
+  "fr": "Séparation"
+ },
+ "III": {
+  "es": "Los Vigilantes",
+  "en": "The Watchers",
+  "de": "Die Wächter",
+  "fr": "Les Veilleurs"
+ },
+ "IV": {
+  "es": "Diluvio y pacto",
+  "en": "Flood and covenant",
+  "de": "Flut und Bund",
+  "fr": "Déluge et alliance"
+ },
+ "VII": {
+  "es": "Cristo",
+  "en": "Christ",
+  "de": "Christus",
+  "fr": "Le Christ"
+ },
+ "IX": {
+  "es": "Visiones apocalípticas",
+  "en": "Apocalyptic visions",
+  "de": "Apokalyptische Visionen",
+  "fr": "Visions apocalyptiques"
+ },
+ "X": {
+  "es": "Nueva creación",
+  "en": "New creation",
+  "de": "Neue Schöpfung",
+  "fr": "Création nouvelle"
+ }
+};
+
+  AD.data.library = [
+ {
+  "id": "IMG-001",
+  "file": "001-creation-formless-depths-hero-desktop",
+  "act": "I",
+  "actSlug": "creation",
+  "chapter": "CH-01",
+  "title": "Antes de la forma",
+  "alt": "Aguas oscuras se extienden bajo nubes densas mientras una claridad dorada aparece en el horizonte.",
+  "desc": "Oscuridad, agua y presencia próxima antes de la forma.",
+  "role": "hero",
+  "evidence": "symbolic",
+  "catLetter": "D",
+  "refs": [
+   "Génesis 1:2"
+  ],
+  "enoch": [],
+  "warning": "Representación simbólica; la materialización visual no afirma una realidad física ni un cumplimiento histórico literal. Génesis 1:2 no es un modelo de cosmología científica moderna.",
+  "safeText": "left-upper",
+  "motion": [
+   "zoom máximo 1.03; desactivar con prefers-reduced-motion"
+  ],
+  "brightness": "oscura con horizonte luminoso",
+  "safeBox": [
+   0.05,
+   0.4,
+   0.1,
+   0.38
+  ],
+  "focal": "78% 62%"
+ },
+ {
+  "id": "IMG-002",
+  "file": "002-creation-prior-creation-interpretive-desktop",
+  "act": "I",
+  "actSlug": "creation",
+  "chapter": "CH-01",
+  "title": "Posible creación anterior",
+  "alt": "Relieves rocosos inciertos se sumergen en aguas azules oscuras bajo reflejos de luz tenue y partículas suspendidas.",
+  "desc": "Hipótesis de realidad previa sugerida únicamente mediante relieves naturales sumergidos.",
+  "role": "interpretive",
+  "evidence": "debated",
+  "catLetter": "E",
+  "refs": [
+   "Génesis 1:1–2"
+  ],
+  "enoch": [],
+  "warning": "Exploración de una hipótesis debatida sobre Génesis 1:1–2, citado como pasaje interpretado. El texto no narra expresamente una creación previa arruinada ni una civilización preadámica. Las formas ambiguas no constituyen evidencia histórica.",
+  "safeText": "left-upper",
+  "motion": [
+   "Acercamiento mínimo y oscilación leve del reflejo; no materializar las formas ambiguas.",
+   "Desactivar con prefers-reduced-motion; no deformar sujetos."
+  ],
+  "brightness": "oscura con luz superior derecha",
+  "safeBox": [
+   0.05,
+   0.39,
+   0.15,
+   0.68
+  ],
+  "focal": "78% 62%"
+ },
+ {
+  "id": "IMG-003",
+  "file": "003-creation-light-hero-desktop",
+  "act": "I",
+  "actSlug": "creation",
+  "chapter": "CH-02",
+  "title": "La luz",
+  "alt": "Una amplia claridad dorada atraviesa las nubes desde arriba a la derecha y revela las aguas oscuras.",
+  "desc": "Irrupción de luz desde una abertura alta que transforma la oscuridad sobre las aguas.",
+  "role": "hero",
+  "evidence": "text",
+  "catLetter": "A",
+  "refs": [
+   "Génesis 1:3–5"
+  ],
+  "enoch": [],
+  "warning": "Visualización poética del relato; no describe un modelo científico del origen del universo. Relieve, flora, fauna y luz son elecciones artísticas.",
+  "safeText": "left-upper",
+  "motion": [
+   "Expansión muy lenta de luz ambiental y acercamiento de cámara casi imperceptible.",
+   "Desactivar con prefers-reduced-motion; no deformar sujetos."
+  ],
+  "brightness": "oscura-media con abertura luminosa superior",
+  "safeBox": [
+   0.05,
+   0.39,
+   0.1,
+   0.4
+  ],
+  "focal": "78% 62%"
+ },
+ {
+  "id": "IMG-004",
+  "file": "004-creation-waters-firmament-interpretive-desktop",
+  "act": "I",
+  "actSlug": "creation",
+  "chapter": "CH-02",
+  "title": "Separación de aguas y firmamento",
+  "alt": "Una gran extensión de cielo azul y nubes claras se abre sobre las aguas oscuras de un horizonte bajo.",
+  "desc": "Separación de aguas y firmamento sugerida por una bóveda de nubes y un intervalo de aire.",
+  "role": "interpretive",
+  "evidence": "symbolic",
+  "catLetter": "D",
+  "refs": [
+   "Génesis 1:6–8"
+  ],
+  "enoch": [],
+  "warning": "Imagen cosmológico-poética basada en la separación de aguas del texto; la bóveda atmosférica es un recurso visual, no un diagrama científico.",
+  "safeText": "left-upper",
+  "motion": [
+   "Desplazamiento pausado de capas de nubes y aproximación suave al intervalo central.",
+   "Desactivar con prefers-reduced-motion; no deformar sujetos."
+  ],
+  "brightness": "media con cielo luminoso",
+  "safeBox": [
+   0.07,
+   0.4,
+   0.25,
+   0.56
+  ],
+  "focal": "78% 62%"
+ },
+ {
+  "id": "IMG-005",
+  "file": "005-creation-land-vegetation-background-desktop",
+  "act": "I",
+  "actSlug": "creation",
+  "chapter": "CH-02",
+  "title": "Tierra y vegetación",
+  "alt": "Brotes verdes nacen en tierra húmeda frente a brazos de río e islas de vegetación, rodeados de laderas claras.",
+  "desc": "Tierra fértil y vegetación naciente junto a aguas reunidas en un valle amplio.",
+  "role": "background",
+  "evidence": "text",
+  "catLetter": "A",
+  "refs": [
+   "Génesis 1:9–13"
+  ],
+  "enoch": [],
+  "warning": "Visualización poética del relato; no describe un modelo científico del origen del universo. Relieve, flora, fauna y luz son elecciones artísticas.",
+  "safeText": "left-upper",
+  "motion": [
+   "Avance lento siguiendo el río, con movimiento leve de niebla y hojas.",
+   "Desactivar con prefers-reduced-motion; no deformar sujetos."
+  ],
+  "brightness": "media-luminosa",
+  "safeBox": [
+   0.1,
+   0.4,
+   0.07,
+   0.24
+  ],
+  "focal": "78% 62%"
+ },
+ {
+  "id": "IMG-006",
+  "file": "006-creation-luminaries-interpretive-desktop",
+  "act": "I",
+  "actSlug": "creation",
+  "chapter": "CH-02",
+  "title": "Sol, luna y luminarias",
+  "alt": "Una luna creciente y estrellas ocupan el cielo azul mientras el sol asoma sobre un valle de ríos iluminado en oro.",
+  "desc": "Orden del tiempo representado mediante coexistencia simbólica de luna, estrellas y sol.",
+  "role": "interpretive",
+  "evidence": "symbolic",
+  "catLetter": "D",
+  "refs": [
+   "Génesis 1:14–19"
+  ],
+  "enoch": [],
+  "warning": "Composición simbólica de las luminarias y del orden temporal. La coexistencia y disposición de sus luces expresa ciclos; no afirma una alineación astronómica documentada.",
+  "safeText": "left-upper",
+  "motion": [
+   "Variación ambiental muy lenta entre tonos de día y noche; preservar posiciones y escala de luminarias.",
+   "Desactivar con prefers-reduced-motion; no deformar sujetos."
+  ],
+  "brightness": "media con transición de noche a luz dorada",
+  "safeBox": [
+   0.05,
+   0.34,
+   0.22,
+   0.39
+  ],
+  "focal": "78% 62%"
+ },
+ {
+  "id": "IMG-007",
+  "file": "007-creation-sea-sky-life-background-desktop",
+  "act": "I",
+  "actSlug": "creation",
+  "chapter": "CH-02",
+  "title": "Vida en los mares y cielos",
+  "alt": "Peces nadan en aguas costeras transparentes, dos delfines emergen a distancia y aves vuelan ante acantilados claros.",
+  "desc": "Vida marina y aves reunidas en un paisaje costero de aguas físicamente creíbles.",
+  "role": "background",
+  "evidence": "text",
+  "catLetter": "A",
+  "refs": [
+   "Génesis 1:20–23"
+  ],
+  "enoch": [],
+  "warning": "Visualización poética del relato; no describe un modelo científico del origen del universo. Relieve, flora, fauna y luz son elecciones artísticas.",
+  "safeText": "left-upper",
+  "motion": [
+   "Deslizamiento corto de cámara sobre la costa y pequeñas ondas; no animar fauna mediante deformación.",
+   "Desactivar con prefers-reduced-motion; no deformar sujetos."
+  ],
+  "brightness": "media-luminosa",
+  "safeBox": [
+   0.05,
+   0.38,
+   0.08,
+   0.28
+  ],
+  "focal": "78% 62%"
+ },
+ {
+  "id": "IMG-008",
+  "file": "008-creation-land-life-background-desktop",
+  "act": "I",
+  "actSlug": "creation",
+  "chapter": "CH-02",
+  "title": "Vida terrestre",
+  "alt": "Dos gacelas pastan junto al río, una cabra silvestre ocupa una roca elevada y una tortuga avanza por la tierra del primer plano.",
+  "desc": "Vida terrestre integrada a distintas profundidades en el valle del jardín.",
+  "role": "background",
+  "evidence": "text",
+  "catLetter": "A",
+  "refs": [
+   "Génesis 1:24–25"
+  ],
+  "enoch": [],
+  "warning": "Visualización poética del relato; no describe un modelo científico del origen del universo. Relieve, flora, fauna y luz son elecciones artísticas.",
+  "safeText": "left-upper",
+  "motion": [
+   "Movimiento pausado hacia el valle; limitar animación a follaje, bruma y reflejos.",
+   "Desactivar con prefers-reduced-motion; no deformar sujetos."
+  ],
+  "brightness": "media-luminosa",
+  "safeBox": [
+   0.12,
+   0.38,
+   0.22,
+   0.31
+  ],
+  "focal": "78% 62%"
+ },
+ {
+  "id": "IMG-009",
+  "file": "009-creation-humanity-interpretive-desktop",
+  "act": "I",
+  "actSlug": "creation",
+  "chapter": "CH-02",
+  "title": "Creación de la humanidad",
+  "alt": "Dos rostros humanos adultos contemplan la luz entre hojas opacas, con el río y las laderas del jardín al fondo.",
+  "desc": "Surgimiento simbólico de conciencia y dignidad humana mediante miradas, tierra, vegetación y luz.",
+  "role": "interpretive",
+  "evidence": "symbolic",
+  "catLetter": "D",
+  "refs": [
+   "Génesis 1:26–27",
+   "Génesis 2:7"
+  ],
+  "enoch": [],
+  "warning": "Síntesis simbólica del surgimiento de la humanidad. Casting, gesto, simultaneidad y entorno son decisiones artísticas; no se representa un mecanismo físico de creación.",
+  "safeText": "left-upper",
+  "motion": "Acercamiento mínimo a los rostros con partículas escasas; rostros y cuerpos permanecen estables.",
+  "brightness": "medium-bright",
+  "safeBox": [
+   0.05,
+   0.25,
+   0.2,
+   0.65
+  ],
+  "focal": "78% 62%"
+ },
+ {
+  "id": "IMG-010",
+  "file": "010-creation-human-vocation-interpretive-desktop",
+  "act": "I",
+  "actSlug": "creation",
+  "chapter": "CH-02",
+  "title": "Imagen de Dios y vocación humana",
+  "alt": "Adán retira pequeñas ramas del suelo mientras Eva sostiene un tallo, rodeados por vegetación opaca con el río al fondo.",
+  "desc": "La vocación humana se representa como cuidado compartido de una planta viva.",
+  "role": "interpretive",
+  "evidence": "symbolic",
+  "catLetter": "D",
+  "refs": [
+   "Génesis 1:26–28",
+   "Génesis 2:15"
+  ],
+  "enoch": [],
+  "warning": "Representación conceptual de imagen de Dios y cuidado de la creación. La acción concreta es editorial; el texto no ofrece una imagen física de Dios ni una escena detallada equivalente.",
+  "safeText": "left-upper",
+  "motion": "Parallax leve entre vegetación y valle, sin deformar las manos ni alterar la acción.",
+  "brightness": "medium-bright",
+  "safeBox": [
+   0.05,
+   0.3,
+   0.2,
+   0.62
+  ],
+  "focal": "78% 62%"
+ },
+ {
+  "id": "IMG-011",
+  "file": "011-eden-sacred-garden-hero-desktop",
+  "act": "I",
+  "actSlug": "eden",
+  "chapter": "CH-03",
+  "title": "El jardín de Edén",
+  "alt": "Un gran árbol crece junto a un río turquesa entre vegetación, cascadas y laderas de piedra clara.",
+  "desc": "Edén como jardín vivo de agua, altura y encuentro.",
+  "role": "hero",
+  "evidence": "text",
+  "catLetter": "A",
+  "refs": [
+   "Génesis 2:8–15"
+  ],
+  "enoch": [],
+  "warning": "Basada en elementos del relato; composición, aspecto físico y detalles ambientales son decisiones artísticas, no documentación del acontecimiento.",
+  "safeText": "left-upper",
+  "motion": [
+   "zoom máximo 1.03; desactivar con prefers-reduced-motion"
+  ],
+  "brightness": "media-luminosa",
+  "safeBox": [
+   0.08,
+   0.38,
+   0.07,
+   0.3
+  ],
+  "focal": "78% 62%"
+ },
+ {
+  "id": "IMG-012",
+  "file": "012-eden-cosmic-sanctuary-interpretive-desktop",
+  "act": "I",
+  "actSlug": "eden",
+  "chapter": "CH-03",
+  "title": "Edén como santuario cósmico",
+  "alt": "Troncos y ramas irregulares enmarcan una apertura hacia el río, laderas de caliza y vegetación iluminada.",
+  "desc": "Santuario interpretado como umbral enteramente natural entre jardín, agua y cielo.",
+  "role": "interpretive",
+  "evidence": "christian",
+  "catLetter": "C",
+  "refs": [
+   "Génesis 2:8–15",
+   "Génesis 3:24"
+  ],
+  "enoch": [],
+  "warning": "Lectura teológica de Edén como santuario y encuentro entre cielo y tierra. Génesis no describe un templo construido allí; la geometría del paisaje y la luz son recursos editoriales.",
+  "safeText": "left-upper",
+  "motion": "Aproximación lenta al claro con parallax discreto de ramas; sin abrir un portal literal.",
+  "brightness": "medium-bright",
+  "safeBox": [
+   0.04,
+   0.24,
+   0.18,
+   0.52
+  ],
+  "focal": "78% 62%"
+ },
+ {
+  "id": "IMG-013",
+  "file": "013-eden-tree-of-life-background-desktop",
+  "act": "I",
+  "actSlug": "eden",
+  "chapter": "CH-03",
+  "title": "El árbol de la vida",
+  "alt": "El tronco de múltiples bifurcaciones y las raíces del árbol se alzan junto al río turquesa, con caliza y vegetación al fondo.",
+  "desc": "Retrato cercano del árbol de la vida a nivel del agua y sus raíces, con corteza físicamente tangible.",
+  "role": "background",
+  "evidence": "text",
+  "catLetter": "A",
+  "refs": [
+   "Génesis 2:9"
+  ],
+  "enoch": [],
+  "warning": "El texto menciona el árbol de la vida sin identificar especie, forma ni dimensiones. Su aspecto natural y monumental es editorial, dentro de una geografía imaginada.",
+  "safeText": "left-lower",
+  "motion": "Acercamiento suave al tronco y movimiento mínimo del follaje y del agua.",
+  "brightness": "medium-bright",
+  "safeBox": [
+   0.05,
+   0.33,
+   0.66,
+   0.82
+  ],
+  "focal": "78% 38%"
+ },
+ {
+  "id": "IMG-014",
+  "file": "014-eden-communion-background-desktop",
+  "act": "I",
+  "actSlug": "eden",
+  "chapter": "CH-03",
+  "title": "Comunión",
+  "alt": "Adán y Eva, vistos de perfil entre arbustos opacos, comparten un recorrido sereno junto al río del jardín.",
+  "desc": "La pareja en comunión con el jardín, a escala humana dentro del paisaje luminoso.",
+  "role": "background",
+  "evidence": "symbolic",
+  "catLetter": "D",
+  "refs": [
+   "Génesis 2:15–25"
+  ],
+  "enoch": [],
+  "warning": "Paseo armónico elegido para expresar comunión; esos versículos no narran esta puesta en escena. La presencia divina se sugiere mediante luz, sin cuerpo humano de Dios.",
+  "safeText": "left-upper",
+  "motion": "Avance suave paralelo al camino; mantener figuras estables y una respiración ambiental leve.",
+  "brightness": "medium-bright",
+  "safeBox": [
+   0.05,
+   0.28,
+   0.2,
+   0.66
+  ],
+  "focal": "78% 62%"
+ },
+ {
+  "id": "IMG-015",
+  "file": "015-fall-serpent-tree-background-desktop",
+  "act": "II",
+  "actSlug": "fall",
+  "chapter": "CH-04",
+  "title": "La serpiente y el árbol",
+  "alt": "Una serpiente de escamas oliva parduzcas reposa sobre una rama sombreada, con el jardín y su río al fondo.",
+  "desc": "Tensión contenida mediante la quietud de una serpiente realista y el cambio hacia sombras más profundas.",
+  "role": "background",
+  "evidence": "text",
+  "catLetter": "A",
+  "refs": [
+   "Génesis 3:1–6"
+  ],
+  "enoch": [],
+  "warning": "La serpiente pertenece al relato; su especie, anatomía concreta y posición son elecciones visuales. No se identifica la especie del fruto ni se añade anatomía monstruosa.",
+  "safeText": "left-upper",
+  "motion": "Acercamiento mínimo a la rama con follaje apenas móvil; sin transformar anatomía de la serpiente.",
+  "brightness": "medium-dark",
+  "safeBox": [
+   0.05,
+   0.38,
+   0.18,
+   0.65
+  ],
+  "focal": "78% 62%"
+ },
+ {
+  "id": "IMG-016",
+  "file": "016-fall-unknown-fruit-interpretive-desktop",
+  "act": "II",
+  "actSlug": "fall",
+  "chapter": "CH-04",
+  "title": "El fruto no identificado",
+  "alt": "Una mano adulta se detiene a poca distancia de la superficie ocre de un fruto parcialmente oculto por hojas y sombra.",
+  "desc": "Instante previo a la elección mediante la proximidad de una mano y un fruto de identidad botánica indeterminada.",
+  "role": "interpretive",
+  "evidence": "text",
+  "catLetter": "A",
+  "refs": [
+   "Génesis 3:6"
+  ],
+  "enoch": [],
+  "warning": "Génesis no identifica la especie del fruto prohibido. Su aspecto queda intencionadamente ambiguo; el gesto previo y el detalle de la mano son una elección de puesta en escena.",
+  "safeText": "left-upper",
+  "motion": "Acercamiento casi imperceptible; mantener mano y fruto estáticos y sin deformación.",
+  "brightness": "medium-dark",
+  "safeBox": [
+   0.04,
+   0.3,
+   0.08,
+   0.3
+  ],
+  "focal": "78% 62%"
+ },
+ {
+  "id": "IMG-017",
+  "file": "017-fall-decision-background-desktop",
+  "act": "II",
+  "actSlug": "fall",
+  "chapter": "CH-04",
+  "title": "El instante de la decisión",
+  "alt": "Eva observa una rama con la mano detenida entre las hojas, mientras Adán permanece detrás de ella en un jardín de río y roca clara.",
+  "desc": "El instante de la decisión en un primer plano de miradas contenidas y manos, con el cuerpo cubierto por el encuadre vegetal.",
+  "role": "background",
+  "evidence": "symbolic",
+  "catLetter": "D",
+  "refs": [
+   "Génesis 3:6"
+  ],
+  "enoch": [],
+  "warning": "El texto narra la elección; este instante psicológico, las expresiones y el reparto de miradas son una interpretación artística. No se define la especie del fruto.",
+  "safeText": "left-upper",
+  "motion": "Cambio ambiental lento de luz sin mover facciones ni introducir melodrama.",
+  "brightness": "medium, warm",
+  "safeBox": [
+   0.03,
+   0.22,
+   0.12,
+   0.72
+  ],
+  "focal": "78% 62%"
+ },
+ {
+  "id": "IMG-018",
+  "file": "018-fall-hiding-background-desktop",
+  "act": "II",
+  "actSlug": "fall",
+  "chapter": "CH-04",
+  "title": "Vergüenza y ocultamiento",
+  "alt": "Eva y Adán se esconden entre ramas oscuras con coberturas de hojas, mientras el río y el árbol del jardín quedan detrás de ellos.",
+  "desc": "Ocultamiento y vulnerabilidad con rostros reconocibles, cobertura vegetal opaca y luz en descenso.",
+  "role": "background",
+  "evidence": "text",
+  "catLetter": "A",
+  "refs": [
+   "Génesis 3:7–10"
+  ],
+  "enoch": [],
+  "warning": "El relato menciona coberturas vegetales y ocultamiento. La composición evita desnudez explícita y no anticipa las prendas de piel de Génesis 3:21.",
+  "safeText": "left-lower",
+  "motion": "Lento acercamiento desde el follaje, dejando la expresión humana quieta y legible.",
+  "brightness": "dark-medium",
+  "safeBox": [
+   0.04,
+   0.31,
+   0.58,
+   0.84
+  ],
+  "focal": "78% 38%"
+ },
+ {
+  "id": "IMG-019",
+  "file": "019-fall-broken-communion-interpretive-desktop",
+  "act": "II",
+  "actSlug": "fall",
+  "chapter": "CH-04",
+  "title": "Ruptura de la comunión",
+  "alt": "La pareja, parcialmente oculta por ramas, mira hacia un jardín que se aleja entre sombras y bruma al final de un camino rocoso.",
+  "desc": "Ruptura de comunión expresada con un camino, un jardín aún reconocible y una creciente separación de luz y distancia.",
+  "role": "interpretive",
+  "evidence": "symbolic",
+  "catLetter": "D",
+  "refs": [
+   "Génesis 3:8–10",
+   "Génesis 3:23–24"
+  ],
+  "enoch": [],
+  "warning": "Símbolo de ruptura y separación basado en el relato. El umbral que se cierra y la disposición de figuras no son mecanismos o gestos descritos literalmente en Génesis.",
+  "safeText": "left-lower",
+  "motion": "Cerrar levemente la bruma del camino con parallax lento; no crear una puerta mecánica.",
+  "brightness": "dark-medium",
+  "safeBox": [
+   0.04,
+   0.31,
+   0.51,
+   0.79
+  ],
+  "focal": "78% 38%"
+ },
+ {
+  "id": "IMG-020",
+  "file": "020-fall-lost-access-interpretive-desktop",
+  "act": "II",
+  "actSlug": "fall",
+  "chapter": "CH-04",
+  "title": "Pérdida de acceso",
+  "alt": "Un sendero rocoso termina junto a aguas veladas por bruma, mientras el árbol del jardín permanece luminoso en la orilla distante.",
+  "desc": "Interpretación teológica de acceso perdido mediante camino, reflejos y un velo atmosférico entre el observador y el jardín.",
+  "role": "interpretive",
+  "evidence": "christian",
+  "catLetter": "C",
+  "refs": [
+   "Génesis 3:22–24"
+  ],
+  "enoch": [],
+  "warning": "Lectura teológica y metafísica de la pérdida de acceso al espacio sagrado. El velo y las capas visuales son símbolos; no afirman dimensiones físicas superiores ni un mecanismo científico.",
+  "safeText": "left-upper",
+  "motion": "Desplazamiento mínimo entre reflejo y paisaje, sin convertir el símbolo en una demostración física.",
+  "brightness": "medium with dark foreground",
+  "safeBox": [
+   0.05,
+   0.39,
+   0.15,
+   0.34
+  ],
+  "focal": "78% 62%"
+ },
+ {
+  "id": "IMG-021",
+  "file": "021-fall-expulsion-hero-desktop",
+  "act": "II",
+  "actSlug": "fall",
+  "chapter": "CH-05",
+  "title": "Expulsión del jardín",
+  "alt": "Adán y Eva, vestidos con pieles, miran atrás mientras se alejan del jardín por un sendero rocoso.",
+  "desc": "La pareja sale del jardín hacia una tierra más árida.",
+  "role": "hero",
+  "evidence": "text",
+  "catLetter": "A",
+  "refs": [
+   "Génesis 3:21–24"
+  ],
+  "enoch": [],
+  "warning": "Basada en elementos del relato; composición, aspecto físico y detalles ambientales son decisiones artísticas, no documentación del acontecimiento.",
+  "safeText": "left-upper",
+  "motion": [
+   "zoom máximo 1.03; desactivar con prefers-reduced-motion"
+  ],
+  "brightness": "media con sujetos en sombra",
+  "safeBox": [
+   0.05,
+   0.38,
+   0.08,
+   0.3
+  ],
+  "focal": "78% 62%"
+ },
+ {
+  "id": "IMG-022",
+  "file": "022-fall-guarded-way-background-desktop",
+  "act": "II",
+  "actSlug": "fall",
+  "chapter": "CH-05",
+  "title": "Querubines y camino cerrado",
+  "alt": "Dos presencias luminosas apenas definidas entre la niebla y una llama estrecha custodian un camino rocoso hacia el jardín.",
+  "desc": "Camino custodiado mediante presencias veladas y fuego contenido; el jardín continúa visible más allá del umbral.",
+  "role": "background",
+  "evidence": "text",
+  "catLetter": "A",
+  "refs": [
+   "Génesis 3:24"
+  ],
+  "enoch": [],
+  "warning": "Génesis 3:24 nombra querubines y una espada o llama que se mueve, sin describir su anatomía. Las formas veladas y el tratamiento del fuego son editoriales; no se importan rasgos de Ezequiel ni querubines infantiles.",
+  "safeText": "left-lower",
+  "motion": "Oscilación sobria de la llama y bruma; mantener guardianes velados sin concretar anatomía.",
+  "brightness": "medium with dark foreground and bright mist",
+  "safeBox": [
+   0.04,
+   0.34,
+   0.58,
+   0.83
+  ],
+  "focal": "78% 38%"
+ },
+ {
+  "id": "IMG-023",
+  "file": "023-fall-outside-eden-background-desktop",
+  "act": "II",
+  "actSlug": "fall",
+  "chapter": "CH-05",
+  "title": "Fuera de Edén",
+  "alt": "Adán remueve tierra rojiza con una vara de madera mientras Eva transporta ramas junto a un refugio sencillo de palos y pieles.",
+  "desc": "Vida fuera de Edén: esfuerzo compartido, abrigo básico y un horizonte todavía abierto en un paisaje más duro.",
+  "role": "background",
+  "evidence": "history",
+  "catLetter": "B",
+  "refs": [
+   "Génesis 3:17–19",
+   "Génesis 3:21",
+   "Génesis 3:23"
+  ],
+  "enoch": [],
+  "warning": "Reconstrucción narrativa plausible del trabajo fuera del jardín. Génesis no detalla este asentamiento, refugio ni herramientas concretas. Las prendas de piel corresponden al momento posterior a Génesis 3:21.",
+  "safeText": "left-upper",
+  "motion": "Deslizamiento lento hacia el refugio; animar solo clima y vegetación, preservar anatomía y herramientas.",
+  "brightness": "medium",
+  "safeBox": [
+   0.04,
+   0.34,
+   0.05,
+   0.22
+  ],
+  "focal": "78% 62%"
+ },
+ {
+  "id": "IMG-033",
+  "file": "033-watchers-descent-hero-desktop",
+  "act": "III",
+  "actSlug": "watchers",
+  "chapter": "CH-07",
+  "title": "Descenso de los Vigilantes",
+  "alt": "Presencias humanas luminosas y parcialmente veladas descienden entre nubes sobre una cresta montañosa bajo una tormenta oscura.",
+  "desc": "Descenso de los Vigilantes en lenguaje visionario de la tradición de 1 Enoc, con roca húmeda, niebla y una luz ámbar contenida.",
+  "role": "hero",
+  "evidence": "text",
+  "catLetter": "A",
+  "refs": [
+   "Genesis 6:1–4"
+  ],
+  "enoch": [
+   "1 Enoc 6:1-6"
+  ],
+  "warning": "El descenso al monte pertenece a 1 Enoc. Génesis 6 no describe este descenso ni la apariencia física de los Vigilantes. La tormenta, el vestuario, la geografía montañosa dramatizada y la escala son decisiones artísticas; la montaña no es una reconstrucción topográfica de Hermón.",
+  "safeText": "left-upper",
+  "motion": [
+   "acercamiento lento",
+   "crossfade atmosférico"
+  ],
+  "brightness": "dark-medium, focal highlights",
+  "safeBox": [
+   0.05,
+   0.4,
+   0.1,
+   0.4
+  ],
+  "focal": "78% 62%"
+ },
+ {
+  "id": "IMG-045",
+  "file": "045-flood-deluge-hero-desktop",
+  "act": "IV",
+  "actSlug": "flood",
+  "chapter": "CH-09",
+  "title": "El diluvio",
+  "alt": "Un arca larga y cerrada de madera oscura resiste entre grandes olas de espuma bajo nubes de tormenta y una abertura de luz fría.",
+  "desc": "El diluvio como juicio y preservación: una estructura de madera sobria sobre un mar inmenso, sin víctimas visibles.",
+  "role": "hero",
+  "evidence": "text",
+  "catLetter": "A",
+  "refs": [
+   "Génesis 7:11-20"
+  ],
+  "enoch": [],
+  "warning": "Génesis sustenta el diluvio y la preservación en el arca. La carpintería, cubierta, ventana, escala de oleaje y punto de vista son reconstrucción artística; no se presentan como ingeniería naval o arqueología demostrada.",
+  "safeText": "left-upper",
+  "motion": [
+   "acercamiento lento",
+   "crossfade de atmósfera"
+  ],
+  "brightness": "dark-medium, cold focal sky",
+  "safeBox": [
+   0.05,
+   0.4,
+   0.1,
+   0.4
+  ],
+  "focal": "78% 62%"
+ },
+ {
+  "id": "IMG-103",
+  "file": "103-christ-kingdom-teaching-hero-desktop",
+  "act": "VII",
+  "actSlug": "christ",
+  "chapter": "CH-20",
+  "title": "Enseñanza del Reino",
+  "alt": "Jesús enseña sentado entre un pequeño grupo de adultos en una ladera de Galilea, junto a olivos y piedra clara, con el lago al fondo.",
+  "desc": "Enseñanza humana y cercana del Reino, con luz cálida, materiales naturales y atención compartida.",
+  "role": "hero",
+  "evidence": "history",
+  "catLetter": "B",
+  "refs": [
+   "Matthew 5:1–2"
+  ],
+  "enoch": [],
+  "warning": "Fisonomía y puesta en escena creadas para continuidad narrativa, no retrato históricamente comprobado. La acción se ancla en Mateo 5:1–2.",
+  "safeText": "left-upper",
+  "motion": "",
+  "brightness": "Pendiente de evaluación visual.",
+  "safeBox": [
+   0.04,
+   0.44,
+   0.05,
+   0.27
+  ],
+  "focal": "78% 62%"
+ },
+ {
+  "id": "IMG-170",
+  "file": "170-revelation-return-of-christ-hero-desktop",
+  "act": "IX",
+  "actSlug": "revelation",
+  "chapter": "CH-31",
+  "title": "Regreso de Cristo",
+  "alt": "Cristo permanece de pie sobre un umbral rocoso bajo nubes abiertas y luz dorada, con el mismo rostro de su enseñanza y un amplio paisaje a sus pies.",
+  "desc": "Regreso simbólico de Cristo: presencia serena, continuidad humana y cielo iluminado sobre una tierra extensa.",
+  "role": "hero",
+  "evidence": "symbolic",
+  "catLetter": "D",
+  "refs": [
+   "Revelation 1:7",
+   "Matthew 24:30"
+  ],
+  "enoch": [],
+  "warning": "Síntesis visionaria inspirada en Apocalipsis 1:7 y Mateo 24:30. No pretende representar literalmente todos los elementos de Apocalipsis 19 ni establecer una cronología futura.",
+  "safeText": "left-upper",
+  "motion": [
+   "desplazamiento lento",
+   "parallax sutil si existen capas",
+   "crossfade entre variantes verificadas"
+  ],
+  "brightness": "Pendiente de evaluación visual.",
+  "safeBox": [
+   0.04,
+   0.41,
+   0.1,
+   0.46
+  ],
+  "focal": "78% 62%"
+ },
+ {
+  "id": "IMG-184",
+  "file": "184-new-creation-alpha-omega-hero-desktop",
+  "act": "X",
+  "actSlug": "new-creation",
+  "chapter": "CH-34",
+  "title": "Alfa y Omega visual",
+  "alt": "El río y el gran árbol del jardín se integran en una ciudad de piedra clara donde una comunidad camina en paz.",
+  "desc": "Jardín, ciudad y humanidad reunidos como cierre simbólico de la historia.",
+  "role": "hero",
+  "evidence": "symbolic",
+  "catLetter": "D",
+  "refs": [
+   "Génesis 2:8–15",
+   "Apocalipsis 21:1–4",
+   "Apocalipsis 21:22–27",
+   "Apocalipsis 22:1–5",
+   "Apocalipsis 22:13"
+  ],
+  "enoch": [],
+  "warning": "Representación simbólica; la materialización visual no afirma una realidad física ni un cumplimiento histórico literal. Síntesis artística autorizada de jardín, ciudad, río, árbol y comunidad; no es un solo versículo ni un acontecimiento adicional.",
+  "safeText": "left-upper",
+  "motion": [
+   "zoom máximo 1.03; desactivar con prefers-reduced-motion"
+  ],
+  "brightness": "luminosa",
+  "safeBox": [
+   0.08,
+   0.38,
+   0.07,
+   0.27
+  ],
+  "focal": "78% 62%"
+ }
+];
+
+  AD.data.libraryBase = 'media/library/';
+  AD.data.libraryThumbs = 'media/thumbs/';
+  AD.data.libraryNote = {
+    es: 'Imágenes generadas para este proyecto. Cada una lleva su clasificación metodológica: una reconstrucción artística no es una fotografía documental ni una afirmación histórica.',
+    en: 'Images generated for this project. Each carries its methodological classification: an artistic reconstruction is neither a documentary photograph nor a historical claim.',
+    de: 'Für dieses Projekt erzeugte Bilder. Jedes tragt seine methodische Einordnung: eine künstlerische Rekonstruktion ist weder Dokumentarfoto noch historische Behauptung.',
+    fr: 'Images produites pour ce projet. Chacune porte sa classification méthodologique : une reconstitution artistique n\u2019est ni une photographie documentaire ni une affirmation historique.'
+  };
+  AD.data.libraryById = {};
+  AD.data.library.forEach(function (a) { AD.data.libraryById[a.id] = a; });
+})(window.AD);
+
 /* Preguntas difíciles (§6–§9). Cada ficha separa lo que el texto dice de lo
    que no explica, y añade dos campos que no suelen aparecer en este tipo de
    material: qué se deduce realmente cuando el lenguaje es figurado, y para qué
@@ -5220,6 +6262,7 @@ body { background: #05070E; }
                 de: 'Beschreibt 1. Mose 1,2 den ursprünglichen Zustand der Schöpfung oder die Folgen einer früheren Katastrophe?',
                 fr: 'Genèse 1,2 décrit-il l’état originel de la création, ou les suites d’une catastrophe antérieure ?' },
     passages: ['gen1.1-5', 'isa14.12-15'],
+    images: [{ id: 'IMG-001', position: null }, { id: 'IMG-002', position: 'B' }],
     refs: ['Genesis 1:1–3', 'Isaiah 45:18', 'Jeremiah 4:23–26'],
     textSays: { es: 'La tierra estaba tohu wa-bohu — sin forma y vacía —, había tinieblas sobre el abismo y el espíritu de Dios se movía sobre las aguas. El versículo 3 introduce la luz. El texto no dice cuánto tiempo media entre el versículo 1 y el 2.',
                 en: 'The earth was tohu wa-bohu — formless and void — darkness lay over the deep, and the spirit of God moved over the waters. Verse 3 introduces light. The text says nothing about how much time separates verse 1 from verse 2.',
@@ -5316,6 +6359,7 @@ body { background: #05070E; }
                 de: 'Wen heiratete Kain, wen fürchtete er, und wie konnte er eine Stadt bauen?',
                 fr: 'Qui Caïn a-t-il épousée, qui craignait-il, et comment a-t-il pu bâtir une ville ?' },
     passages: ['gen4.13-17', 'gen5.3-5'],
+    images: [{ id: 'IMG-023', position: null }],
     refs: ['Genesis 4:13–17', 'Genesis 5:4'],
     textSays: { es: 'Caín teme que «cualquiera que me hallare, me matará»; recibe una señal protectora; habita en Nod; conoce a su mujer y edifica una ciudad. Génesis 5:4 dice que Adán engendró hijos e hijas, sin nombrarlos.',
                 en: 'Cain fears that “every one that findeth me shall slay me”; he is given a protective mark; he dwells in Nod; he knows his wife and builds a city. Genesis 5:4 says Adam fathered sons and daughters, none of them named.',
@@ -5409,6 +6453,7 @@ body { background: #05070E; }
                 de: 'Was änderte sich wirklich am Menschen: Schuld, Sterblichkeit, Gemeinschaft — oder der Zugang zu einer weiteren Wirklichkeit?',
                 fr: 'Qu’est-ce qui a réellement changé chez l’homme : la faute, la mortalité, la communion — ou l’accès à une réalité plus vaste ?' },
     passages: ['gen3.8-13', 'gen3.22-24', 'rom5.12', 'rom8.19-23'],
+    images: [{ id: 'IMG-019', position: '1' }, { id: 'IMG-012', position: '3' }, { id: 'IMG-020', position: '4' }, { id: 'IMG-021', position: null }],
     refs: ['Genesis 3:8–13', 'Genesis 3:22–24', 'Romans 5:12', 'Romans 8:19–23'],
     textSays: { es: 'Se abren los ojos, aparece la vergüenza, se esconden, se culpan unos a otros. La tierra es maldita, el trabajo se hace penoso, llega la muerte. Son expulsados y querubines guardan el camino al árbol de la vida.',
                 en: 'Their eyes open, shame appears, they hide, they blame one another. The ground is cursed, labour becomes toil, death arrives. They are driven out and cherubim guard the way to the tree of life.',
@@ -7734,6 +8779,7 @@ body { background: #05070E; }
 
   var SECTIONS = [
     { key: 'questions', label: 'Questions' },
+    { key: 'library', label: 'Images' },
     { key: 'index', label: 'All entries' },
     { key: 'mirror', label: 'Beginning & End' },
     { key: 'sequences', label: 'Contested order' },
@@ -7751,6 +8797,7 @@ body { background: #05070E; }
 
   var VIEWS = {
     questions: function (p) { return AD.views.questions(p); },
+    library: function () { return AD.views.library(); },
     index: function (p) { return AD.views.index(p); },
     mirror: function () { return AD.views.mirror(); },
     sequences: function () { return AD.views.sequences(); },
@@ -7817,6 +8864,22 @@ body { background: #05070E; }
     ]);
   }
 
+  function imageFor(q, positionKey) {
+    if (!q.images) return null;
+    var found = q.images.filter(function (x) { return x.position === positionKey; })[0];
+    if (!found) return null;
+    var a = D.libraryById[found.id];
+    if (!a) return null;
+    return el('figure', { class: 'qfig' }, [
+      el('img', { src: D.libraryBase + a.file + '.jpg', alt: a.alt, loading: 'lazy', decoding: 'async' }),
+      el('figcaption', {}, [
+        el('span', { class: 'qfig__id', text: a.id }),
+        el('span', { class: 'qfig__t', text: a.title }),
+        a.warning ? el('span', { class: 'qfig__w', text: a.warning }) : null
+      ])
+    ]);
+  }
+
   AD.views.questions = function (params) {
     var list = el('div', { class: 'q-list' });
 
@@ -7867,6 +8930,9 @@ body { background: #05070E; }
         })));
       }
 
+      var lead = imageFor(q, null);
+      if (lead) out.push(lead);
+
       out.push(el('div', { class: 'split' }, [
         el('div', { class: 'slab slab--text' }, [
           el('p', { class: 'slab__label' }, [I.t('q.textSays')]),
@@ -7900,7 +8966,8 @@ body { background: #05070E; }
               el('p', { class: 'pos__lab pos__lab--against', text: I.t('q.objections') }),
               el('p', { text: I.text(p.objs) })
             ])
-          ])
+          ]),
+          imageFor(q, p.key)
         ]);
       })));
 
@@ -7937,6 +9004,106 @@ body { background: #05070E; }
                 fr: 'Chaque fiche sépare ce que le texte dit de ce qu’il n’explique pas, ajoute ce qui peut se déduire quand la langue est figurée et à quoi sert l’épisode, et classe chaque position selon son niveau de preuve.' }[I.get()]
       }),
       list
+    ]);
+  };
+})(window.AD);
+
+(function (AD) {
+  'use strict';
+  var el = AD.util.el, C = AD.components, D = AD.data, I = AD.i18n;
+
+  var ROLE = {
+    hero:         { es: 'Apertura de capítulo', en: 'Chapter opening', de: 'Kapitelauftakt', fr: 'Ouverture de chapitre' },
+    interpretive: { es: 'Imagen interpretativa', en: 'Interpretive image', de: 'Deutungsbild', fr: 'Image interprétative' },
+    background:   { es: 'Escena narrativa', en: 'Narrative scene', de: 'Erzählszene', fr: 'Scène narrative' }
+  };
+
+  function evChip(id) {
+    var e = D.evidenceById[id];
+    if (!e) return null;
+    return el('span', { class: 'ev ev--' + e.tone, title: e.def }, [el('span', { class: 'ev__dot' }), e.short]);
+  }
+
+  function figure(a, eager) {
+    var refs = (a.refs || []).concat(a.enoch || []);
+    var caption = el('figcaption', { class: 'lib__cap glass glass--subtle', 'data-safe': a.safeText }, [
+      el('p', { class: 'lib__role' }, [
+        I.text(ROLE[a.role] || ROLE.background),
+        el('span', { class: 'lib__id', text: a.id })
+      ]),
+      el('h3', { class: 'lib__title', text: a.title }),
+      a.desc ? el('p', { class: 'lib__desc', text: a.desc }) : null,
+      el('div', { class: 'lib__meta' }, [evChip(a.evidence)].concat(
+        refs.map(function (r) {
+          var pid = findPassage(r);
+          return el('button', {
+            class: 'ref lib__ref', type: 'button',
+            title: pid ? I.t('q.readPassage') : r,
+            onclick: function () { AD.components.passage.open(pid || r); }
+          }, I.ref(r));
+        })
+      )),
+      a.warning ? el('p', { class: 'lib__warn', text: a.warning }) : null
+    ]);
+
+    return el('figure', { class: 'lib__fig', 'data-role': a.role, 'data-safe': a.safeText || 'left-upper' }, [
+      el('div', { class: 'lib__frame' }, [
+        el('img', {
+          src: D.libraryBase + a.file + '.jpg', alt: a.alt,
+          loading: eager ? 'eager' : 'lazy', decoding: 'async',
+          style: 'object-position:' + (a.focal || '50% 50%')
+        })
+      ]),
+      caption
+    ]);
+  }
+
+  function findPassage(ref) {
+    var keys = Object.keys(D.passages);
+    for (var i = 0; i < keys.length; i++) {
+      var p = D.passages[keys[i]];
+      if (p.ref === ref || p.ref.indexOf(ref.split('–')[0]) === 0) return keys[i];
+    }
+    return null;
+  }
+
+  AD.views.library = function () {
+    var acts = [];
+    D.library.forEach(function (a) {
+      if (!acts.length || acts[acts.length - 1].act !== a.act) acts.push({ act: a.act, items: [] });
+      acts[acts.length - 1].items.push(a);
+    });
+
+    var n = 0;
+    var body = acts.map(function (g) {
+      var name = D.libraryActNames[g.act];
+      return el('section', { class: 'lib__act' }, [
+        el('header', { class: 'lib__acthead' }, [
+          el('span', { class: 'lib__actnum', text: g.act }),
+          el('h2', { text: name ? I.text(name) : g.act }),
+          el('span', { class: 'lib__count', text: g.items.length })
+        ])
+      ].concat(g.items.map(function (a) { return figure(a, n++ < 2); })));
+    });
+
+    return el('div', { class: 'lib' }, [
+      C.pageHead({
+        eyebrow: { es: 'Biblioteca visual', en: 'Visual library', de: 'Bildarchiv', fr: 'Bibliothèque visuelle' }[I.get()],
+        title: { es: 'El principio, en imágenes', en: 'The beginning, in images',
+                 de: 'Der Anfang, in Bildern', fr: 'Le commencement, en images' }[I.get()],
+        lede: { es: '28 imágenes generadas para este proyecto, ordenadas por acto y capítulo. Cada una indica su función narrativa, su nivel de evidencia y los pasajes con los que se relaciona.',
+                en: '28 images made for this project, ordered by act and chapter. Each states its narrative function, its evidence level and the passages it relates to.',
+                de: '28 für dieses Projekt erzeugte Bilder, nach Akt und Kapitel geordnet. Jedes nennt seine erzählerische Funktion, seine Belegstufe und die zugehörigen Stellen.',
+                fr: '28 images réalisées pour ce projet, classées par acte et chapitre. Chacune indique sa fonction narrative, son niveau de preuve et les passages associés.' }[I.get()]
+      }),
+      C.callout({ es: 'Cómo leer estas imágenes', en: 'How to read these images',
+                  de: 'Wie diese Bilder zu lesen sind', fr: 'Comment lire ces images' }[I.get()],
+        [I.text(D.libraryNote),
+         { es: 'Resolución pendiente: los originales miden 1672 × 941 px y **no alcanzan** el mínimo de producción de 2560 × 1440 que pedía el encargo. Se conservan sin ampliar.',
+           en: 'Resolution pending: the originals are 1672 × 941 px and **fall short of** the 2560 × 1440 production minimum the brief asked for. They are kept without upscaling.',
+           de: 'Auflösung offen: die Originale messen 1672 × 941 px und **erreichen nicht** das geforderte Produktionsminimum von 2560 × 1440. Sie bleiben unskaliert.',
+           fr: 'Résolution en attente : les originaux font 1672 × 941 px et **n’atteignent pas** le minimum de production de 2560 × 1440 demandé. Ils sont conservés sans agrandissement.' }[I.get()]]),
+      el('div', {}, body)
     ]);
   };
 })(window.AD);
@@ -8708,107 +9875,6 @@ body { background: #05070E; }
   AD.overlay = { create: function (c) { return new Overlay(c); } };
 })(window.AD);
 
-/* Animated symbol glyphs — line art drawn in SVG, stroked on as each scene
-   arrives. One glyph per scene; the mark is the scene's own symbol, not decoration. */
-(function (AD) {
-  'use strict';
-  var s = AD.util.svg;
-
-  function p(d, delay) {
-    return s('path', { d: d, class: 'glyph__p', style: 'animation-delay:' + delay + 'ms' });
-  }
-  function c(cx, cy, r, delay) {
-    return s('circle', { cx: cx, cy: cy, r: r, class: 'glyph__p', style: 'animation-delay:' + delay + 'ms' });
-  }
-
-  var G = {
-    seed: function () {
-      return [c(60, 60, 3.5, 0), c(60, 60, 16, 160), c(60, 60, 30, 320), c(60, 60, 46, 480)];
-    },
-    tree: function () {
-      return [
-        p('M60 104 L60 52', 0),
-        p('M60 74 L40 58 M60 74 L80 58 M60 62 L46 48 M60 62 L74 48', 180),
-        c(60, 40, 22, 340),
-        p('M40 104 Q60 96 80 104', 520)
-      ];
-    },
-    scroll: function () {
-      return [
-        p('M32 34 h56 a8 8 0 0 1 0 16 h-56 a8 8 0 0 1 0 -16 z', 0),
-        p('M32 70 h56 a8 8 0 0 1 0 16 h-56 a8 8 0 0 1 0 -16 z', 160),
-        p('M34 50 v20 M86 50 v20', 320),
-        p('M44 58 h32 M44 64 h24', 460)
-      ];
-    },
-    road: function () {
-      return [
-        p('M20 104 L54 40 M100 104 L66 40', 0),
-        p('M60 46 h0.01', 200),
-        p('M42 86 h36 M48 70 h24 M52 58 h16', 300),
-        c(60, 30, 8, 480)
-      ];
-    },
-    stones: function () {
-      return [
-        p('M28 96 h64 v12 h-64 z', 0),
-        p('M34 80 h34 v16 h-34 z', 160),
-        p('M72 80 h20 v16 h-20 z', 260),
-        p('M40 62 h26 v18 h-26 z', 360),
-        p('M74 56 l14 -6 v18 h-14 z', 480)
-      ];
-    },
-    colonnade: function () {
-      return [
-        p('M24 40 h72 v8 h-72 z', 0),
-        p('M32 48 v52 M60 48 v52 M88 48 v52', 200),
-        p('M26 100 h12 M54 100 h12 M82 100 h12', 380),
-        p('M24 32 h72', 500)
-      ];
-    },
-    eclipse: function () {
-      return [
-        c(60, 58, 26, 0),
-        p('M60 20 v-10 M60 106 v10 M22 58 h-10 M98 58 h10 M33 31 l-7 -7 M87 31 l7 -7 M33 85 l-7 7 M87 85 l7 7', 220),
-        c(60, 58, 40, 420)
-      ];
-    },
-    radiance: function () {
-      return [
-        c(60, 56, 14, 0),
-        p('M60 24 v-12 M60 88 v12 M28 56 h-12 M92 56 h12 M37 33 l-8 -8 M83 33 l8 -8 M37 79 l-8 8 M83 79 l8 8', 180),
-        p('M26 92 q14 -12 30 -4 q12 -10 24 2 q10 -4 14 6', 400)
-      ];
-    },
-    throne: function () {
-      return [
-        p('M40 96 h40 M34 104 h52', 0),
-        p('M44 96 v-30 h32 v30', 160),
-        p('M44 66 q16 -14 32 0', 320),
-        p('M50 42 h20 M46 34 h28', 440),
-        c(60, 20, 6, 560)
-      ];
-    },
-    city: function () {
-      return [
-        p('M22 104 h76', 0),
-        p('M30 104 V64 h16 v40 M54 104 V48 h14 v56 M76 104 V70 h14 v34', 160),
-        p('M36 104 v-14 h4 v14 M60 104 v-18 h4 v18 M82 104 v-12 h4 v12', 360),
-        p('M18 96 q20 8 42 0 q22 -8 42 0', 500)
-      ];
-    }
-  };
-
-  AD.glyph = function (id) {
-    var build = G[id] || G.seed;
-    return s('svg', {
-      class: 'glyph', viewBox: '0 0 120 120', 'aria-hidden': 'true',
-      fill: 'none', stroke: 'currentColor', 'stroke-width': '1.3',
-      'stroke-linecap': 'round', 'stroke-linejoin': 'round'
-    }, build());
-  };
-})(window.AD);
-
 /* World-anchored hotspots. Each is defined by an azimuth and elevation in the
    scene's world, projected through the live camera every frame, so they move
    with the shot instead of sitting on the page. Keyboard reachable. */
@@ -8885,204 +9951,186 @@ body { background: #05070E; }
   };
 })(window.AD);
 
-/* Sound design, synthesized in the browser — no audio files.
+/* Sonido celeste, sintetizado en el navegador. Sin archivos de audio.
 
-   Three layers per scene: a drone on the tonic, a slow pad that moves through a
-   chord progression, and a sparse bell motif that walks the scene's mode. Each
-   scene has its own root, mode, progression and tempo, so the music changes with
-   the chronology instead of holding one chord. Everything runs through a small
-   feedback-delay reverb for space, and a stereo panner tied to the camera.
+   La versión anterior sonaba áspera por causas concretas, todas corregidas:
+     · un detune de 2,002× que producía un batido inquieto → parciales armónicos exactos
+     · acordes con séptima y novena por defecto → tríadas consonantes y quintas abiertas
+     · una reverb de tres retardos con realimentación 0,70 → convolución con una cola
+       de 5,5 s generada, mucho más suave y sin peine metálico
+     · una campana con parcial 2,01× inarmónico → octava y quinta justas
+     · ataques de 12 ms → 4 s, para que nada entre de golpe
 
-   Silent until the listener asks for it. */
+   El control visible sólo ofrece encender, apagar y elegir banda sonora. */
 (function (AD) {
   'use strict';
 
-  var ctx = null, master = null, wet = null, started = false, on = false;
+  var ctx = null, master = null, verb = null, dry = null, wet = null;
+  var started = false, on = false;
+  var voices = [], sub = null, air = null;
+  var timer = null, nextAt = 0, step = 0, chordIdx = -1, scene = null;
 
-  /* Bandas sonoras: no son pistas grabadas sino caracteres del mismo motor.
-     El control visible sólo ofrece encender, apagar y elegir entre estas. */
   var TRACKS = [
-    { id: 'strings', gain: 1.00, wet: 0.56, cut: 1.00, bell: 1.00, air: 1.00, wave: 'sine',
-      name: { es: 'Cuerdas', en: 'Strings', de: 'Streicher', fr: 'Cordes' } },
-    { id: 'choral',  gain: 0.92, wet: 0.78, cut: 0.72, bell: 0.55, air: 1.60, wave: 'triangle',
-      name: { es: 'Coral',   en: 'Choral',  de: 'Choral',    fr: 'Choral' } },
-    { id: 'minimal', gain: 0.80, wet: 0.40, cut: 0.55, bell: 0.00, air: 0.55, wave: 'sine',
-      name: { es: 'Mínimo',  en: 'Minimal', de: 'Minimal',   fr: 'Minimal' } }
+    { id: 'choir',  name: { es: 'Coro',    en: 'Choir',   de: 'Chor',    fr: 'Chœur' },
+      wet: 0.62, gain: 1.00, air: 0.5, bell: 0.55, partials: [1, 2, 3, 4, 5, 6], tilt: 0.72 },
+    { id: 'waters', name: { es: 'Aguas',   en: 'Waters',  de: 'Wasser',  fr: 'Eaux' },
+      wet: 0.70, gain: 0.94, air: 1.5, bell: 0.30, partials: [1, 2, 3, 4], tilt: 0.55 },
+    { id: 'return', name: { es: 'Regreso', en: 'Homecoming', de: 'Heimkehr', fr: 'Retour' },
+      wet: 0.56, gain: 1.06, air: 0.7, bell: 0.75, partials: [1, 2, 3, 4, 5, 6, 8], tilt: 0.88 }
   ];
   var track = TRACKS[0];
-  var drone = [], pad = null, panner = null;
-  var timer = null, nextNote = 0, step = 0, chordIdx = 0;
-  var scene = null, target = null, blend = 0;
 
-  /* equal temperament from A4 */
-  function hz(semi) { return 440 * Math.pow(2, semi / 12); }
-
+  /* Modos consonantes. Ninguno con segunda menor sobre la tónica. */
   var MODE = {
-    aeolian:   [0, 2, 3, 5, 7, 8, 10],
-    dorian:    [0, 2, 3, 5, 7, 9, 10],
-    ionian:    [0, 2, 4, 5, 7, 9, 11],
-    lydian:    [0, 2, 4, 6, 7, 9, 11],
-    mixolydian:[0, 2, 4, 5, 7, 9, 10],
-    phrygian:  [0, 1, 3, 5, 7, 8, 10],
-    phrygdom:  [0, 1, 4, 5, 7, 8, 10],
-    wholetone: [0, 2, 4, 6, 8, 10, 12]
+    ionian:     [0, 2, 4, 5, 7, 9, 11],
+    aeolian:    [0, 2, 3, 5, 7, 8, 10],
+    dorian:     [0, 2, 3, 5, 7, 9, 10],
+    lydian:     [0, 2, 4, 6, 7, 9, 11],
+    mixolydian: [0, 2, 4, 5, 7, 9, 10]
   };
 
-  /* root is a semitone offset from A3 (-12). progression and motif are scale
-     degrees; the motif reads as a melody rather than a random walk. */
+  /* Progresiones por grados, todas por cuartas o terceras: reposo, no tensión. */
   var VOICE = {
-    prologue:    { root: -19, mode: 'aeolian',    prog: [0, 5, 3, 4],  motif: [0, 4, 7, 4],     bpm: 30, sparse: 0.72, oct: 2 },
-    origins:     { root: -21, mode: 'ionian',     prog: [1, 4, 0, 3],  motif: [0, 2, 4, 7],     bpm: 34, sparse: 0.58, oct: 2 },
-    foundations: { root: -19, mode: 'dorian',     prog: [0, 3, 6, 4],  motif: [0, 3, 5, 3],     bpm: 28, sparse: 0.76, oct: 2 },
-    signs:       { root: -14, mode: 'mixolydian', prog: [0, 3, 5, 1],  motif: [4, 2, 0, 2],     bpm: 36, sparse: 0.62, oct: 2 },
-    tribulation: { root: -17, mode: 'aeolian',    prog: [0, 5, 3, 4],  motif: [0, 3, 2, 0],     bpm: 32, sparse: 0.70, oct: 1 },
-    adversaries: { root: -17, mode: 'aeolian',    prog: [0, 4, 5, 3],  motif: [0, 2, 4, 2],     bpm: 26, sparse: 0.80, oct: 1 },
-    cosmos:      { root: -21, mode: 'lydian',     prog: [0, 4, 2, 5],  motif: [0, 4, 6, 4],     bpm: 24, sparse: 0.82, oct: 3 },
-    parousia:    { root: -16, mode: 'lydian',     prog: [0, 4, 1, 5],  motif: [0, 2, 4, 6],     bpm: 38, sparse: 0.50, oct: 3 },
-    judgement:   { root: -12, mode: 'aeolian',    prog: [0, 5, 3, 6],  motif: [7, 4, 2, 0],     bpm: 30, sparse: 0.68, oct: 2 },
-    restoration: { root: -14, mode: 'ionian',     prog: [0, 3, 5, 4],  motif: [0, 2, 4, 7],     bpm: 40, sparse: 0.52, oct: 3 },
-    coda:        { root: -19, mode: 'aeolian',    prog: [0, 5, 3, 4],  motif: [7, 4, 0, 4],     bpm: 26, sparse: 0.76, oct: 2 }
+    prologue:    { root: -22, mode: 'aeolian',    prog: [0, 5, 3, 4], bpm: 26, rest: 0.80 },
+    origins:     { root: -24, mode: 'ionian',     prog: [0, 3, 4, 0], bpm: 30, rest: 0.62 },
+    foundations: { root: -22, mode: 'dorian',     prog: [0, 3, 6, 4], bpm: 24, rest: 0.82 },
+    signs:       { root: -17, mode: 'mixolydian', prog: [0, 3, 4, 3], bpm: 30, rest: 0.70 },
+    tribulation: { root: -20, mode: 'aeolian',    prog: [0, 5, 3, 5], bpm: 26, rest: 0.78 },
+    adversaries: { root: -20, mode: 'aeolian',    prog: [0, 4, 5, 4], bpm: 22, rest: 0.86 },
+    cosmos:      { root: -24, mode: 'lydian',     prog: [0, 4, 3, 4], bpm: 20, rest: 0.88 },
+    parousia:    { root: -19, mode: 'lydian',     prog: [0, 4, 3, 0], bpm: 32, rest: 0.52 },
+    judgement:   { root: -15, mode: 'aeolian',    prog: [0, 5, 3, 4], bpm: 24, rest: 0.76 },
+    restoration: { root: -17, mode: 'ionian',     prog: [0, 3, 4, 0], bpm: 34, rest: 0.50 },
+    coda:        { root: -22, mode: 'aeolian',    prog: [0, 5, 3, 4], bpm: 22, rest: 0.82 }
   };
 
+  function hz(s) { return 440 * Math.pow(2, s / 12); }
   function degree(v, d) {
     var m = MODE[v.mode], n = m.length;
     var oct = Math.floor(d / n), i = ((d % n) + n) % n;
     return v.root + m[i] + oct * 12;
   }
 
-  /* --- graph ---------------------------------------------------------- */
+  /* Cola de reverb generada: ruido con decaimiento exponencial y un filtro
+     suave, que es lo que da la sensación de nave o de espacio abierto. */
+  function impulse(seconds, decay) {
+    var n = Math.floor(ctx.sampleRate * seconds);
+    var buf = ctx.createBuffer(2, n, ctx.sampleRate);
+    for (var c = 0; c < 2; c++) {
+      var d = buf.getChannelData(c), last = 0;
+      for (var i = 0; i < n; i++) {
+        var t = i / n;
+        var white = Math.random() * 2 - 1;
+        last = last * 0.72 + white * 0.28;           /* paso bajo: quita la aspereza */
+        d[i] = last * Math.pow(1 - t, decay) * (1 - t * 0.15);
+      }
+    }
+    return buf;
+  }
+
   function build() {
     var AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return false;
     ctx = new AC();
 
-    master = ctx.createGain();
-    master.gain.value = 0;
-    master.connect(ctx.destination);
+    master = ctx.createGain(); master.gain.value = 0;
+    var soft = ctx.createBiquadFilter();
+    soft.type = 'lowpass'; soft.frequency.value = 3200; soft.Q.value = 0.4;
+    master.connect(soft); soft.connect(ctx.destination);
 
-    /* a small feedback-delay reverb: three prime-ish delays through a lowpass */
+    verb = ctx.createConvolver();
+    verb.buffer = impulse(5.5, 2.6);
     wet = ctx.createGain(); wet.gain.value = track.wet;
-    var damp = ctx.createBiquadFilter();
-    damp.type = 'lowpass'; damp.frequency.value = 1500;
-    [0.137, 0.211, 0.313].forEach(function (d) {
-      var dl = ctx.createDelay(1.0); dl.delayTime.value = d;
-      var fb = ctx.createGain(); fb.gain.value = 0.70;
-      wet.connect(dl); dl.connect(fb); fb.connect(damp); damp.connect(dl);
-      dl.connect(master);
-    });
-    wet.connect(master);
+    dry = ctx.createGain(); dry.gain.value = 0.72;
+    verb.connect(wet); wet.connect(master); dry.connect(master);
 
-    panner = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
-    if (panner) { panner.connect(master); panner.connect(wet); }
+    /* Pad coral: parciales armónicos exactos con un vibrato lentísimo.
+       Sin detunes fraccionarios: son los que producían el batido. */
+    var lfo = ctx.createOscillator(), lfoGain = ctx.createGain();
+    lfo.frequency.value = 0.13; lfoGain.gain.value = 1.6;
+    lfo.connect(lfoGain); lfo.start();
 
-    /* drone: two detuned oscillators plus a sub */
-    [[1, 'sine', 0.38], [2.002, 'sine', 0.10], [0.5, 'sine', 0.26]].forEach(function (v) {
-      var o = ctx.createOscillator(), g = ctx.createGain(), f = ctx.createBiquadFilter();
-      o.type = v[1]; o.frequency.value = 110 * v[0];
-      f.type = 'lowpass'; f.frequency.value = 620;
-      g.gain.value = v[2];
-      o.connect(f); f.connect(g); g.connect(master); g.connect(wet);
-      o.start();
-      drone.push({ osc: o, gain: g, filt: f, mult: v[0] });
-    });
-
-    /* pad: four voices holding a chord, retuned on each change */
-    pad = [];
     for (var i = 0; i < 4; i++) {
       var o = ctx.createOscillator(), g = ctx.createGain(), f = ctx.createBiquadFilter();
-      o.type = i === 3 ? 'triangle' : 'sine';
-      o.frequency.value = 220;
-      f.type = 'lowpass'; f.frequency.value = 1400;
+      o.type = 'sine'; o.frequency.value = 220;
+      f.type = 'lowpass'; f.frequency.value = 1400; f.Q.value = 0.3;
       g.gain.value = 0;
-      o.connect(f); f.connect(g); g.connect(master); g.connect(wet);
+      lfoGain.connect(o.detune);
+      o.connect(f); f.connect(g); g.connect(dry); g.connect(verb);
       o.start();
-      pad.push({ osc: o, gain: g, filt: f });
+      voices.push({ osc: o, gain: g, filt: f, parts: [] });
     }
 
-    /* air */
-    var len = ctx.sampleRate * 3;
-    var buf = ctx.createBuffer(1, len, ctx.sampleRate);
-    var d = buf.getChannelData(0);
-    for (var k = 0; k < len; k++) d[k] = (Math.random() * 2 - 1) * 0.4;
-    var src = ctx.createBufferSource(); src.buffer = buf; src.loop = true;
-    var lp = ctx.createBiquadFilter(); lp.type = 'bandpass'; lp.frequency.value = 520; lp.Q.value = 0.5;
-    var ng = ctx.createGain(); ng.gain.value = 0.022;
-    src.connect(lp); lp.connect(ng); ng.connect(master);
+    sub = ctx.createGain(); sub.gain.value = 0;
+    var so = ctx.createOscillator(); so.type = 'sine'; so.frequency.value = 55;
+    so.connect(sub); sub.connect(dry); sub.connect(verb); so.start();
+    AD.audio._subOsc = so;
+
+    /* Aire: ruido muy filtrado, apenas audible, para que no suene estéril */
+    var len = ctx.sampleRate * 4;
+    var nb = ctx.createBuffer(1, len, ctx.sampleRate);
+    var nd = nb.getChannelData(0), lastn = 0;
+    for (var k = 0; k < len; k++) { lastn = lastn * 0.94 + (Math.random() * 2 - 1) * 0.06; nd[k] = lastn; }
+    var src = ctx.createBufferSource(); src.buffer = nb; src.loop = true;
+    var nf = ctx.createBiquadFilter(); nf.type = 'lowpass'; nf.frequency.value = 700;
+    air = ctx.createGain(); air.gain.value = 0.012;
+    src.connect(nf); nf.connect(air); air.connect(verb);
     src.start();
-    AD.audio._noise = ng;
 
     started = true;
     return true;
   }
 
-  /* --- bell voice ------------------------------------------------------ */
-  function pluck(freq, when, gain, panPos) {
-    var o = ctx.createOscillator(), o2 = ctx.createOscillator();
-    var g = ctx.createGain(), g2 = ctx.createGain();
-    o.type = 'sine'; o.frequency.value = freq;
-    o2.type = 'sine'; o2.frequency.value = freq * 2.01;
-    g.gain.setValueAtTime(0.0001, when);
-    g.gain.exponentialRampToValueAtTime(gain, when + 0.28);
-    g.gain.exponentialRampToValueAtTime(0.0001, when + 4.2);
-    g2.gain.setValueAtTime(0.0001, when);
-    g2.gain.exponentialRampToValueAtTime(gain * 0.16, when + 0.22);
-    g2.gain.exponentialRampToValueAtTime(0.0001, when + 2.0);
-    o.connect(g); o2.connect(g2);
-    var dest = panner || master;
-    if (panner) panner.pan.setTargetAtTime(panPos, when, 0.3);
-    g.connect(dest); g2.connect(dest);
-    if (!panner) { g.connect(wet); g2.connect(wet); }
-    o.start(when); o2.start(when);
-    o.stop(when + 4.4); o2.stop(when + 2.2);
+  /* Campana armónica: fundamental, octava y quinta. Nada inarmónico. */
+  function chime(freq, when, gain) {
+    [[1, gain], [2, gain * 0.34], [3, gain * 0.14]].forEach(function (p) {
+      var o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'sine'; o.frequency.value = freq * p[0];
+      g.gain.setValueAtTime(0.0001, when);
+      g.gain.exponentialRampToValueAtTime(Math.max(p[1], 0.0002), when + 0.9);
+      g.gain.exponentialRampToValueAtTime(0.0001, when + 7.5);
+      o.connect(g); g.connect(dry); g.connect(verb);
+      o.start(when); o.stop(when + 8);
+    });
   }
 
-  /* --- scheduler -------------------------------------------------------- */
+  function setChord(v, rootDeg, when) {
+    /* tríada abierta: fundamental, quinta, tercera una octava arriba, y la
+       fundamental doblada. Consonante y sin roces. */
+    var degs = [0, 4, 2 + 7, 0 + 7];
+    for (var i = 0; i < voices.length; i++) {
+      var f = hz(degree(v, rootDeg + degs[i]) + 12);
+      voices[i].osc.frequency.setTargetAtTime(f, when, 2.2);
+      voices[i].gain.gain.setTargetAtTime(0.040 * [1, 0.8, 0.62, 0.5][i], when, 3.4);
+    }
+    if (AD.audio._subOsc) AD.audio._subOsc.frequency.setTargetAtTime(hz(degree(v, rootDeg) - 12), when, 3.0);
+    sub.gain.setTargetAtTime(0.055, when, 3.0);
+  }
+
   function schedule() {
     if (!on || !scene) return;
     var v = VOICE[scene] || VOICE.prologue;
     var beat = 60 / v.bpm;
-    var horizon = ctx.currentTime + 0.6;
-    while (nextNote < horizon) {
-      var when = Math.max(nextNote, ctx.currentTime + 0.02);
-
-      /* chord change every four beats */
-      if (step % 4 === 0) {
+    while (nextAt < ctx.currentTime + 1.2) {
+      var when = Math.max(nextAt, ctx.currentTime + 0.05);
+      if (step % 8 === 0) {
         chordIdx = (chordIdx + 1) % v.prog.length;
         setChord(v, v.prog[chordIdx], when);
       }
-
-      /* the motif, with rests so it breathes */
-      if (track.bell > 0 && Math.random() > (1 - (1 - v.sparse) * track.bell)) {
-        var d = v.motif[step % v.motif.length] + v.prog[chordIdx];
-        var f = hz(degree(v, d) + v.oct * 12);
-        pluck(f, when, 0.026 + Math.random() * 0.016, (Math.random() - 0.5) * 0.6);
-        if (Math.random() > 0.85) {
-          pluck(hz(degree(v, d + 2) + v.oct * 12), when + beat * 0.75, 0.014, (Math.random() - 0.5) * 0.8);
-        }
+      if (track.bell > 0 && Math.random() > v.rest) {
+        var d = v.prog[chordIdx] + [0, 2, 4, 7][Math.floor(Math.random() * 4)];
+        chime(hz(degree(v, d) + 24), when, 0.020 * track.bell);
       }
-
-      nextNote += beat;
+      nextAt += beat * 2;
       step++;
-    }
-  }
-
-  function setChord(v, rootDeg, when) {
-    if (!pad) return;
-    /* quartal-ish voicing: root, third, fifth, ninth of the mode */
-    var degs = [0, 2, 4, 6];
-    for (var i = 0; i < pad.length; i++) {
-      var f = hz(degree(v, rootDeg + degs[i]) + 12);
-      pad[i].osc.frequency.setTargetAtTime(f, when, 0.9);
-      pad[i].gain.gain.setTargetAtTime(0.040 - i * 0.006, when, 2.4);
-    }
-    for (var k = 0; k < drone.length; k++) {
-      drone[k].osc.frequency.setTargetAtTime(hz(degree(v, rootDeg) - 12) * drone[k].mult, when, 1.6);
     }
   }
 
   AD.audio = {
     available: function () { return !!(window.AudioContext || window.webkitAudioContext); },
     isOn: function () { return on; },
+    tracks: function () { return TRACKS; },
+    currentTrack: function () { return track.id; },
 
     toggle: function () {
       if (!started && !build()) return false;
@@ -9091,63 +10139,52 @@ body { background: #05070E; }
       var t = ctx.currentTime;
       master.gain.cancelScheduledValues(t);
       master.gain.setValueAtTime(master.gain.value, t);
-      master.gain.linearRampToValueAtTime(on ? 0.115 * track.gain : 0, t + (on ? 3.0 : 1.1));
+      /* entrada de 6 s: nada aparece de golpe */
+      master.gain.linearRampToValueAtTime(on ? 0.13 * track.gain : 0, t + (on ? 6.0 : 2.2));
       if (on) {
-        nextNote = ctx.currentTime + 0.25;
-        step = 0; chordIdx = -1;
+        nextAt = ctx.currentTime + 0.4; step = 0; chordIdx = -1;
         if (timer) clearInterval(timer);
-        timer = setInterval(schedule, 120);
+        timer = setInterval(schedule, 220);
         schedule();
       } else if (timer) { clearInterval(timer); timer = null; }
       return on;
     },
 
-    /* follow the journey */
-    setScene: function (id, brightness, pan) {
-      if (!started) { scene = id; return; }
-      if (id !== scene) {
-        scene = id;
-        step = 0;
-        chordIdx = -1;
-      }
-      if (!on) return;
-      var t = ctx.currentTime;
-      var cut = (620 + brightness * 2400) * track.cut;
-      drone.forEach(function (d) { d.filt.frequency.setTargetAtTime(cut, t, 1.5); });
-      pad.forEach(function (p) { p.filt.frequency.setTargetAtTime(cut * 1.6, t, 1.5); });
-      if (AD.audio._noise) AD.audio._noise.gain.setTargetAtTime((0.018 + brightness * 0.05) * track.air, t, 1.5);
-      if (panner) panner.pan.setTargetAtTime(Math.max(-0.8, Math.min(0.8, pan || 0)), t, 0.8);
-    },
-
-    chime: function (up) {
-      if (!started || !on) return;
-      var v = VOICE[scene] || VOICE.prologue;
-      var t = ctx.currentTime + 0.01;
-      pluck(hz(degree(v, up ? 4 : 2) + 24), t, 0.026, 0);
-      pluck(hz(degree(v, up ? 7 : 4) + 24), t + 0.14, 0.016, 0.2);
-    },
-
-    tracks: function () { return TRACKS; },
-    currentTrack: function () { return track.id; },
     setTrack: function (id) {
       var t2 = TRACKS.filter(function (x) { return x.id === id; })[0];
       if (!t2) return;
       track = t2;
       if (!started || !on) return;
       var now = ctx.currentTime;
-      master.gain.setTargetAtTime(0.115 * track.gain, now, 1.2);
-      wet.gain.setTargetAtTime(track.wet, now, 1.2);
-      pad.forEach(function (p) { p.osc.type = track.wave === 'triangle' ? 'triangle' : 'sine'; });
+      master.gain.setTargetAtTime(0.13 * track.gain, now, 2.0);
+      wet.gain.setTargetAtTime(track.wet, now, 2.0);
+      air.gain.setTargetAtTime(0.012 * track.air, now, 2.0);
+      voices.forEach(function (v) { v.filt.frequency.setTargetAtTime(900 + track.tilt * 1600, now, 2.0); });
     },
 
-    /* an accessible description of what is playing */
+    setScene: function (id, brightness, pan) {
+      if (id !== scene) { scene = id; step = 0; chordIdx = -1; }
+      if (!started || !on) return;
+      var t = ctx.currentTime;
+      var cut = (760 + brightness * 1500) * (0.6 + track.tilt * 0.6);
+      voices.forEach(function (v) { v.filt.frequency.setTargetAtTime(cut, t, 3.0); });
+      if (air) air.gain.setTargetAtTime((0.008 + brightness * 0.018) * track.air, t, 3.0);
+    },
+
+    chime: function () {
+      if (!started || !on) return;
+      var v = VOICE[scene] || VOICE.prologue;
+      chime(hz(degree(v, 4) + 24), ctx.currentTime + 0.02, 0.016);
+    },
+
     describe: function () {
       var v = VOICE[scene] || VOICE.prologue;
-      if (!on) return 'Ambient sound is off.';
       var n = track.name[AD.i18n ? AD.i18n.get() : 'en'] || track.id;
-      return 'Ambient sound (' + n + '): a low drone and a slow ' + v.mode + ' chord progression' +
-        (track.bell > 0 ? ', with an occasional soft bell' : '') +
-        ', at about ' + v.bpm + ' beats per minute. No speech.';
+      return { es: 'Sonido ambiente (' + n + '): un pad coral sostenido sobre una nota grave, con acordes consonantes que cambian muy despacio y alguna campana lejana. Sin voz.',
+               en: 'Ambient sound (' + n + '): a sustained choral pad over a low drone, with consonant chords changing very slowly and an occasional distant bell. No speech.',
+               de: 'Klangbild (' + n + '): ein getragener Chorteppich über einem tiefen Ton, mit sehr langsam wechselnden konsonanten Akkorden und gelegentlicher ferner Glocke. Keine Sprache.',
+               fr: 'Ambiance sonore (' + n + ') : une nappe chorale tenue sur une basse, avec des accords consonants très lents et une cloche lointaine occasionnelle. Sans parole.'
+             }[AD.i18n ? AD.i18n.get() : 'en'];
     }
   };
 })(window.AD);
@@ -9173,6 +10210,8 @@ body { background: #05070E; }
         { key: 'questions', name: { es: 'Preguntas difíciles', en: 'Difficult questions', de: 'Schwierige Fragen', fr: 'Questions difficiles' },
           note: { es: 'Lo que el texto deja abierto, con niveles de evidencia', en: 'What the text leaves open, graded by evidence',
                   de: 'Was der Text offenlässt, nach Belegstufen', fr: 'Ce que le texte laisse ouvert, par niveau de preuve' } },
+        { key: 'library', name: { es: 'Biblioteca visual', en: 'Visual library', de: 'Bildarchiv', fr: 'Bibliothèque visuelle' },
+          note: { es: '28 imágenes por acto y capítulo', en: '28 images by act and chapter', de: '28 Bilder nach Akt und Kapitel', fr: '28 images par acte et chapitre' } },
         { key: 'index', name: { es: 'Todas las fichas', en: 'All entries', de: 'Alle Einträge', fr: 'Toutes les fiches' },
           note: { es: '101 fichas con filtros', en: '101 entries with filters', de: '101 Einträge mit Filtern', fr: '101 fiches avec filtres' } },
         { key: 'study', name: { es: 'Modo estudio', en: 'Study mode', de: 'Studienmodus', fr: 'Mode étude' },
@@ -9402,6 +10441,7 @@ body { background: #05070E; }
     sources:     { title: 'Sources', view: function () { return AD.views.sources(); } },
     atlas:       { title: 'Places', view: function () { return AD.views.atlas(); } },
     questions:   { title: 'Questions', wide: true, view: function (p) { return AD.views.questions(p); } },
+    library:     { title: 'Visual library', wide: true, view: function () { return AD.views.library(); } },
     study:       { title: 'Study mode', wide: true, view: function (p) { return AD.views.study(p); } },
     menu:        { title: 'Deeper reading', view: function () { return menuView(); } }
   };
@@ -9409,6 +10449,7 @@ body { background: #05070E; }
   AD.panelIndex = [
     { key: 'study', name: 'Study mode', note: 'The whole corpus in one place — every section, without leaving the journey' },
     { key: 'questions', name: 'Difficult questions', note: 'What the text says, what it leaves open, and every position graded by evidence' },
+    { key: 'library', name: 'Visual library', note: '28 images by act and chapter, each with its evidence level and passages' },
     { key: 'index', name: 'All entries', note: '101 entries, filterable by book, theme, tradition, certainty, and source' },
     { key: 'atlas', name: 'Places', note: 'A schematic map of the locations named in the texts, linked to their scenes' },
     { key: 'mirror', name: 'Beginning & End', note: 'Genesis motifs paired with their counterparts in the new creation' },
@@ -9638,7 +10679,7 @@ body { background: #05070E; }
     return el('section', {
       class: 'scene', id: 'scene-' + scene.id, 'data-scene': scene.id, 'aria-label': scene.name
     }, [
-      el('div', { class: 'scene__inner' }, [AD.glyph(scene.glyph), caption, hs])
+      el('div', { class: 'scene__inner' }, [caption, hs])
     ]);
   }
 
@@ -9844,22 +10885,19 @@ body { background: #05070E; }
     var searchBtn = el('button', {
       class: 'ctl', type: 'button', 'aria-label': AD.i18n.t('nav.search'),
       onclick: function () { C.search.open(); }
-    }, [searchIcon(), el('span', { class: 'ctl__label', text: AD.i18n.t('nav.search') })]);
+    }, [el('span', { class: 'ctl__label', text: AD.i18n.t('nav.search') })]);
 
     var exploreBtn = el('button', {
       class: 'ctl ctl--primary', type: 'button', 'aria-haspopup': 'dialog',
       onclick: function () { AD.sheet.open(); }
-    }, [
-      icon(['M2.5 4.5h11', 'M2.5 9h11', 'M2.5 13.5h7']),
-      el('span', { class: 'ctl__label', text: exploreLabel() })
-    ]);
+    }, [el('span', { class: 'ctl__label', text: exploreLabel() })]);
 
     var settingsBtn = el('button', {
       class: 'ctl ctl--icon', type: 'button', 'aria-label': settingsLabel(), 'aria-expanded': 'false',
       onclick: function (e) { e.stopPropagation(); AD.prefs.toggle(settingsBtn); }
-    }, [icon(['M8 5.6a2.4 2.4 0 1 0 0 4.8 2.4 2.4 0 0 0 0-4.8z',
-              'M13 8a5 5 0 0 0-.1-.9l1.2-.9-1.2-2-1.4.5a5 5 0 0 0-1.5-.9L9.7 2H6.3l-.3 1.8a5 5 0 0 0-1.5.9L3.1 4.2l-1.2 2 1.2.9A5 5 0 0 0 3 8a5 5 0 0 0 .1.9l-1.2.9 1.2 2 1.4-.5a5 5 0 0 0 1.5.9L6.3 14h3.4l.3-1.8a5 5 0 0 0 1.5-.9l1.4.5 1.2-2-1.2-.9A5 5 0 0 0 13 8z'])]);
+    }, [el('span', { class: 'ctl__label', text: settingsLabel() })]);
 
+    settingsBtn.classList.remove('ctl--icon');
     AD.hudRefs = { mark: mark, search: searchBtn, explore: exploreBtn, settings: settingsBtn };
 
     return el('div', { class: 'hud' }, [
@@ -9968,6 +11006,7 @@ body { background: #05070E; }
         AD.hudRefs.search.setAttribute('aria-label', AD.i18n.t('nav.search'));
         AD.hudRefs.explore.querySelector('.ctl__label').textContent = exploreLabel();
         AD.hudRefs.settings.setAttribute('aria-label', settingsLabel());
+        AD.hudRefs.settings.querySelector('.ctl__label').textContent = settingsLabel();
       }
       var open = AD.panel.isOpen() ? AD.panel.current() : null;
       AD.journey.relabel();

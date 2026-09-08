@@ -33,22 +33,19 @@
     var searchBtn = el('button', {
       class: 'ctl', type: 'button', 'aria-label': AD.i18n.t('nav.search'),
       onclick: function () { C.search.open(); }
-    }, [searchIcon(), el('span', { class: 'ctl__label', text: AD.i18n.t('nav.search') })]);
+    }, [el('span', { class: 'ctl__label', text: AD.i18n.t('nav.search') })]);
 
     var exploreBtn = el('button', {
       class: 'ctl ctl--primary', type: 'button', 'aria-haspopup': 'dialog',
       onclick: function () { AD.sheet.open(); }
-    }, [
-      icon(['M2.5 4.5h11', 'M2.5 9h11', 'M2.5 13.5h7']),
-      el('span', { class: 'ctl__label', text: exploreLabel() })
-    ]);
+    }, [el('span', { class: 'ctl__label', text: exploreLabel() })]);
 
     var settingsBtn = el('button', {
       class: 'ctl ctl--icon', type: 'button', 'aria-label': settingsLabel(), 'aria-expanded': 'false',
       onclick: function (e) { e.stopPropagation(); AD.prefs.toggle(settingsBtn); }
-    }, [icon(['M8 5.6a2.4 2.4 0 1 0 0 4.8 2.4 2.4 0 0 0 0-4.8z',
-              'M13 8a5 5 0 0 0-.1-.9l1.2-.9-1.2-2-1.4.5a5 5 0 0 0-1.5-.9L9.7 2H6.3l-.3 1.8a5 5 0 0 0-1.5.9L3.1 4.2l-1.2 2 1.2.9A5 5 0 0 0 3 8a5 5 0 0 0 .1.9l-1.2.9 1.2 2 1.4-.5a5 5 0 0 0 1.5.9L6.3 14h3.4l.3-1.8a5 5 0 0 0 1.5-.9l1.4.5 1.2-2-1.2-.9A5 5 0 0 0 13 8z'])]);
+    }, [el('span', { class: 'ctl__label', text: settingsLabel() })]);
 
+    settingsBtn.classList.remove('ctl--icon');
     AD.hudRefs = { mark: mark, search: searchBtn, explore: exploreBtn, settings: settingsBtn };
 
     return el('div', { class: 'hud' }, [
@@ -157,6 +154,7 @@
         AD.hudRefs.search.setAttribute('aria-label', AD.i18n.t('nav.search'));
         AD.hudRefs.explore.querySelector('.ctl__label').textContent = exploreLabel();
         AD.hudRefs.settings.setAttribute('aria-label', settingsLabel());
+        AD.hudRefs.settings.querySelector('.ctl__label').textContent = settingsLabel();
       }
       var open = AD.panel.isOpen() ? AD.panel.current() : null;
       AD.journey.relabel();

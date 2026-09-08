@@ -5,6 +5,7 @@
 
   var SECTIONS = [
     { key: 'questions', label: 'Questions' },
+    { key: 'library', label: 'Images' },
     { key: 'index', label: 'All entries' },
     { key: 'mirror', label: 'Beginning & End' },
     { key: 'sequences', label: 'Contested order' },
@@ -22,6 +23,7 @@
 
   var VIEWS = {
     questions: function (p) { return AD.views.questions(p); },
+    library: function () { return AD.views.library(); },
     index: function (p) { return AD.views.index(p); },
     mirror: function () { return AD.views.mirror(); },
     sequences: function () { return AD.views.sequences(); },

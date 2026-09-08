@@ -12,6 +12,7 @@
                 de: 'Was änderte sich wirklich am Menschen: Schuld, Sterblichkeit, Gemeinschaft — oder der Zugang zu einer weiteren Wirklichkeit?',
                 fr: 'Qu’est-ce qui a réellement changé chez l’homme : la faute, la mortalité, la communion — ou l’accès à une réalité plus vaste ?' },
     passages: ['gen3.8-13', 'gen3.22-24', 'rom5.12', 'rom8.19-23'],
+    images: [{ id: 'IMG-019', position: '1' }, { id: 'IMG-012', position: '3' }, { id: 'IMG-020', position: '4' }, { id: 'IMG-021', position: null }],
     refs: ['Genesis 3:8–13', 'Genesis 3:22–24', 'Romans 5:12', 'Romans 8:19–23'],
     textSays: { es: 'Se abren los ojos, aparece la vergüenza, se esconden, se culpan unos a otros. La tierra es maldita, el trabajo se hace penoso, llega la muerte. Son expulsados y querubines guardan el camino al árbol de la vida.',
                 en: 'Their eyes open, shame appears, they hide, they blame one another. The ground is cursed, labour becomes toil, death arrives. They are driven out and cherubim guard the way to the tree of life.',
